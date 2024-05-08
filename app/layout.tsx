@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 
 const beVietNamPro = Be_Vietnam_Pro({
   weight: ["300", "400", "500", "600", "700"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
