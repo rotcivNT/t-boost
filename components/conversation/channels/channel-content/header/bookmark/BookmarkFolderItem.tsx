@@ -1,4 +1,9 @@
 import DropdownTriggerButton from "@/components/shadcn-custom/dropdowm-menu/DropdownTriggerButton";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+} from "@/components/ui/context-menu";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -8,16 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { BookmarkFolder } from "@/types";
-import { ChevronDown, Folder, Plus } from "lucide-react";
-import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
-import BookmarkItem from "./BookmarkItem";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-} from "@/components/ui/context-menu";
 import { ContextMenuTrigger } from "@radix-ui/react-context-menu";
+import { ChevronDown, Folder, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import BookmarkItem from "./BookmarkItem";
+import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
 
 interface IProps {
   bookmarkFolder: BookmarkFolder;
@@ -40,6 +40,7 @@ const DropdownBookmarkFolder = ({ bookmarkFolder }: IProps) => {
 
 function BookmarkFolderItem({ bookmarkFolder }: IProps) {
   const [isEdit, setIsEdit] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [isFolder, setIsFolder] = useState(false);
   const initValue = useMemo(() => {
     return {
@@ -50,6 +51,12 @@ function BookmarkFolderItem({ bookmarkFolder }: IProps) {
   const onClick = (value: boolean) => {
     setIsEdit(value);
     setIsFolder(value);
+    setIsDelete(false);
+  };
+  const handleClickDelete = () => {
+    setIsDelete(true);
+    setIsEdit(false);
+    setIsFolder(true);
   };
 
   return (
@@ -82,9 +89,14 @@ function BookmarkFolderItem({ bookmarkFolder }: IProps) {
                 Edit
               </ContextMenuItem>
             </DialogTrigger>
-            <ContextMenuItem className="text-[13px] text-text-primary">
-              Delete
-            </ContextMenuItem>
+            <DialogTrigger asChild>
+              <ContextMenuItem
+                onClick={handleClickDelete}
+                className="text-[13px] text-text-primary"
+              >
+                Delete
+              </ContextMenuItem>
+            </DialogTrigger>
           </ContextMenuContent>
         </ContextMenu>
         <DropdownMenuContent className="bg-dark border-border w-[300px] py-2 px-0">
@@ -108,12 +120,12 @@ function BookmarkFolderItem({ bookmarkFolder }: IProps) {
           </DialogTrigger>
         </DropdownMenuContent>
       </DropdownMenu>
-
       <BookmarkDialogContent
         isFolder={isFolder}
         folderName={bookmarkFolder.name}
         isEdit={isEdit}
         initValue={initValue}
+        isDelete={isDelete}
       />
     </Dialog>
   );

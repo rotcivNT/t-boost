@@ -8,7 +8,10 @@ const isValidUrl = (url: string) => {
 
 export const previewLink = (url: string) => {
   if (!isValidUrl(url)) {
-    return 425;
+    return {
+      url: false,
+      data: 425,
+    };
   }
   return axios
     .post(
@@ -23,10 +26,12 @@ export const previewLink = (url: string) => {
       }
     )
     .then((resp) => {
-      return resp.data;
+      return { url: true, data: resp.data };
     })
     .catch((err) => {
-      // something went wrong
-      console.log(err.response.status);
+      return {
+        url: true,
+        data: err.response.status,
+      };
     });
 };

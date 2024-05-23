@@ -7,10 +7,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { socket } from "@/configs/socket";
+import { cn } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import AddBookmarkContent from "./AddBookmarkContent";
+import DeleteBookmarkContent from "./DeleteBookmarkContent";
 
 export type BookmarkData = {
   name: string;
@@ -24,6 +26,7 @@ interface IProps {
   folderName?: string;
   initValue?: Partial<BookmarkData>;
   isEdit?: boolean;
+  isDelete?: boolean;
 }
 
 export const BookmarkDialogContent = ({
@@ -31,16 +34,18 @@ export const BookmarkDialogContent = ({
   folderName,
   initValue,
   isEdit = false,
+  isDelete = false,
 }: IProps) => {
   const initState = useMemo(() => {
+    let name = initValue?.name && isEdit ? initValue.name : "";
     return {
-      name: "",
       url: "",
       thumbnail: "",
       folderName,
       ...initValue,
+      name,
     };
-  }, []);
+  }, [isEdit]);
   const [bookmarkData, setBookmarkData] = useState<BookmarkData>(initState);
   const [isPending, startTransition] = useTransition();
   const channelId = usePathname().split("/C/")[1];
@@ -59,10 +64,25 @@ export const BookmarkDialogContent = ({
       if (!isFolder) {
         data.payload = bookmarkData;
       }
+
       if (isEdit) {
         data.payload.previousName = initValue?.name;
         socket.emit("update-bookmark", data);
       } else socket.emit("add-bookmark", data);
+    });
+  };
+
+  const onDelete = () => {
+    startTransition(() => {
+      const payload = {
+        channelId,
+        bookmarkData: {
+          bookmarkName: initState.name,
+          isFolder,
+        },
+      };
+
+      socket.emit("delete-bookmark", payload);
     });
   };
 
@@ -79,13 +99,21 @@ export const BookmarkDialogContent = ({
       setBookmarkData(initState);
     }
   }, [isPending]);
+  useEffect(() => {
+    setBookmarkData(initState);
+  }, [isEdit]);
   return (
     <DialogContent className="sm:max-w-md bg-[#1A1D21] border-[rgb(59,61,66)] rounded-[6px]">
-      <AddBookmarkContent
-        isFolder={isFolder}
-        setBookmarkData={setBookmarkData}
-        bookmarkData={bookmarkData}
-      />
+      {!isDelete ? (
+        <AddBookmarkContent
+          isEdit={isEdit}
+          isFolder={isFolder}
+          setBookmarkData={setBookmarkData}
+          bookmarkData={bookmarkData}
+        />
+      ) : (
+        <DeleteBookmarkContent isFolder={isFolder} />
+      )}
       <DialogFooter className="flex-row justify-end pt-6">
         <DialogClose ref={closeButtonRef}>
           <Button
@@ -97,14 +125,20 @@ export const BookmarkDialogContent = ({
         </DialogClose>
         <Button
           variant="default"
-          className="bg-[#007A5A] text-white font-[500] w-20 hover:opacity-90 hover:bg-[#007A5A] hover:text-white 
-              hover:font-[500]"
-          onClick={onCreate}
+          className={cn(
+            " text-white font-[500] w-20 hover:opacity-90 hover:text-white hover:font-[500]",
+            `${
+              isDelete
+                ? "bg-dangerous hover:bg-dangerous"
+                : "bg-[#007A5A] hover:bg-[#007A5A]"
+            }`
+          )}
+          onClick={isDelete ? onDelete : onCreate}
         >
           {isPending ? (
             <LoaderCircle size={20} className="animate-spin z-10 relative" />
           ) : (
-            `${isEdit ? "Save" : "Create"}`
+            `${isEdit ? "Save" : isDelete ? "Delete" : "Create"}`
           )}
         </Button>
       </DialogFooter>
