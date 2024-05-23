@@ -54,6 +54,7 @@ const config = {
         },
         dark: "#222529",
         "text-primary": "#D1D2D3",
+        dangerous: "#E01E5A",
       },
       borderRadius: {
         lg: "var(--radius)",

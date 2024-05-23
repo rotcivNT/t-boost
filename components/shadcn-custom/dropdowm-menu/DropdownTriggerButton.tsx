@@ -24,8 +24,15 @@ const DropdownTriggerButton = ({
         )}
       >
         {leftIcon}
-        <p className="flex flex-col text-inherit">
-          <span className="block max-w-24 truncate">{title}</span>
+        <p className="flex flex-col text-inherit flex-1">
+          <span
+            className={cn(
+              "block truncate",
+              `${subtitle ? "w-full" : "max-w-24"}`
+            )}
+          >
+            {title}
+          </span>
           <span className="text-[12px] text-[#E8E8E8B3] font-[400]">
             {subtitle}
           </span>

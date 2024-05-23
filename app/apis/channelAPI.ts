@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseURL = "http://localhost:3001/v1/api/channels";
+const baseURL = process.env.CHANNEL_API_BASE_URL + "/v1/api/channels";
 
 export const channelAPI = {
   createChannel: async (payload: any) => {

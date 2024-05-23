@@ -11,6 +11,9 @@ import Link from "next/link";
 import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
 import { useMemo } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { socket } from "@/configs/socket";
+import { usePathname } from "next/navigation";
+import { LinkIcon } from "lucide-react";
 
 interface IProps {
   bookmark: Bookmark;
@@ -18,6 +21,7 @@ interface IProps {
 }
 
 function BookmarkItem({ bookmark, folderName }: IProps) {
+  const channelId = usePathname().split("/C/")[1];
   const initValue = useMemo(() => {
     return {
       name: bookmark.name,
@@ -29,6 +33,17 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
   }, []);
   const onCoppyLink = () => {
     navigator.clipboard.writeText(bookmark.url);
+  };
+  const onDelete = () => {
+    const payload = {
+      channelId,
+      bookmarkData: {
+        bookmarkName: bookmark.name,
+        parentName: folderName,
+        isFolder: false,
+      },
+    };
+    socket.emit("delete-bookmark", payload);
   };
   return (
     <Dialog>
@@ -42,12 +57,16 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
             <DropdownTriggerButton
               title={bookmark.name}
               leftIcon={
-                <Image
-                  alt={bookmark.name}
-                  src={bookmark.thumbnail}
-                  width={16}
-                  height={16}
-                />
+                bookmark.thumbnail ? (
+                  <Image
+                    alt={bookmark.name}
+                    src={bookmark.thumbnail}
+                    width={16}
+                    height={16}
+                  />
+                ) : (
+                  <LinkIcon width={16} height={16} color="#ABABAD" />
+                )
               }
               className="text-[13px] text-[#ABABAD]"
             />
@@ -59,7 +78,10 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
               Edit
             </ContextMenuItem>
           </DialogTrigger>
-          <ContextMenuItem className="text-[13px] text-text-primary">
+          <ContextMenuItem
+            onClick={onDelete}
+            className="text-[13px] text-text-primary"
+          >
             Delete
           </ContextMenuItem>
           <ContextMenuItem

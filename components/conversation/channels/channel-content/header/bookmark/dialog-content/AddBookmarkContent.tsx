@@ -12,45 +12,48 @@ interface IProps {
   isFolder: boolean;
   setBookmarkData: (data: any) => void;
   bookmarkData: BookmarkData;
+  isEdit: boolean;
 }
 
 function AddBookmarkContent({
   isFolder,
   setBookmarkData,
   bookmarkData,
+  isEdit,
 }: IProps) {
   const [linkPreview, setLinkPreview] = useState<any>(() => {
     return !isFolder && bookmarkData.name
       ? {
-          title: bookmarkData.name,
-          image: bookmarkData.thumbnail,
+          data: { title: bookmarkData.name, image: bookmarkData.thumbnail },
+          url: true,
         }
       : undefined;
   });
   const debounceValue = useDebounce(bookmarkData.url, 500);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEdit, setIsEdit] = useState(() =>
+  const [isFecthLink, setIsFetchLink] = useState(() =>
     bookmarkData.name ? true : false
   );
+
   useEffect(() => {
     const getLinkPreviewData = async () => {
       setIsLoading(true);
-      const data = await previewLink(debounceValue);
+      const res = await previewLink(debounceValue);
 
-      if (!data || data === 425) {
-        setLinkPreview(undefined);
+      if (!res || res?.data === 425) {
+        setLinkPreview(res);
       } else {
-        setLinkPreview(data);
+        setLinkPreview(res);
         setBookmarkData((pre: any) => ({
           ...pre,
-          thumbnail: data.image,
+          thumbnail: res.data.image,
         }));
       }
 
       setIsLoading(false);
     };
-    !isFolder && !isEdit && getLinkPreviewData();
-    setIsEdit(false);
+    !isFolder && !isFecthLink && getLinkPreviewData();
+    setIsFetchLink(false);
   }, [debounceValue]);
   const onChange = (key: string, value: string) => {
     setBookmarkData((pre: any) => ({
@@ -63,7 +66,13 @@ function AddBookmarkContent({
     <>
       <DialogHeader>
         <DialogTitle className="font-bold text-[22px] text-text-primary text-left">
-          {isFolder ? "Create a folder" : "Add a bookmark to this channel"}
+          {!isFolder
+            ? isEdit
+              ? "Edit bookmark"
+              : "Add a bookmark to this channel"
+            : isEdit
+            ? "Edit folder"
+            : "Create a folder"}
         </DialogTitle>
       </DialogHeader>
       <div className="flex space-y-2 flex-col">
@@ -91,15 +100,15 @@ function AddBookmarkContent({
           />
         </div>
       </div>
-      {linkPreview && (
+      {linkPreview?.url && (
         <div className="flex space-y-2 flex-col">
           <p className="text-[15px] text-text-primary">Name</p>
           <div className="relative">
             <div className="absolute top-1/2 left-0 -translate-y-1/2 size-8 flex justify-center items-center">
-              {linkPreview?.image ? (
+              {linkPreview?.data.image ? (
                 <Image
-                  alt={linkPreview.title}
-                  src={linkPreview.image}
+                  alt={linkPreview.data.title}
+                  src={linkPreview.data.image}
                   width={20}
                   height={20}
                   sizes="100%"
