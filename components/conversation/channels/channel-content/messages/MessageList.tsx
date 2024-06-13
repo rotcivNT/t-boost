@@ -4,7 +4,7 @@ import { messageAPI } from "@/app/apis/messageAPI";
 import { useChannelStore } from "@/app/store/channel.store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { pusher } from "@/configs/pusher";
-import { MessageItemProps } from "@/types";
+import { MessageCluster, MessageItemProps } from "@/types";
 import { Loader2 } from "lucide-react";
 import {
   useCallback,
@@ -40,7 +40,6 @@ function MessageList() {
   const queryURL = useMemo(() => {
     if (!channel) return "";
     const params = new URLSearchParams();
-
     params.set("channelId", channel._id);
     params.set("page", page.toString());
     return `?${params.toString()}`;
@@ -89,21 +88,26 @@ function MessageList() {
       unbind: (event: string, callBack: any) => null,
     };
     const handleAddNewMessage = (message: MessageItemProps) => {
-      setMessages(message);
+      const cluster: MessageCluster = {
+        _id: new Date(message.createdAt as string).toISOString().split("T")[0],
+        messages: [message],
+      };
+      setMessages(cluster);
     };
     const handleUpdateMessage = (message: MessageItemProps) => {
-      updateMessageByUniqueId(message, false);
+      const clusterId = new Date(message.createdAt as string)
+        .toISOString()
+        .split("T")[0];
+      updateMessageByUniqueId(message, clusterId, false);
     };
     if (!isLoading) {
-      if (data && data[0]) {
+      if (data && data.length > 0) {
         if (page === 1) {
-          setMessages(data[0].messages, true);
+          setMessages(data, true);
           setScrollBottom(true);
         } else {
           setScrollToKey(messages[0]._id);
-          const newMessages = [...data[0].messages, ...messages];
-          setIsLoadMoreMsg(false);
-          setMessages(newMessages, true);
+          setMessages(data);
         }
       } else setIsLoadMoreMsg(false);
       if (channel?._id) {
@@ -137,30 +141,32 @@ function MessageList() {
     <ScrollArea
       ref={containerRef}
       onScroll={onScroll}
-      className="dropzone h-[calc(100%-156px)] mt-5"
+      className="dropzone h-[calc(100%-156px)] mt-5 [&>div:nth-child(2)>div:first-child]:h-full"
     >
       {isLoadMoreMsg && (
         <div className="flex justify-center mb-5">
           <Loader2 className="animate-spin" size={20} />
         </div>
       )}
-      <div className="flex-1 h-full">
-        <DayDivider />
-        {messages.length > 0 &&
-          messages.map((item: MessageItemProps) =>
-            !item?.isSending ? (
-              <MessageItem
-                key={item._id}
-                message={item}
-                ref={(el: HTMLDivElement) => {
-                  itemRefs.current[item._id] = el;
-                  return itemRefs.current[item._id];
-                }}
-              />
-            ) : (
-              <MessageItemStatus key={item.uniqueId} message={item} />
-            )
-          )}
+      <div className="flex h-full flex-col justify-end">
+        {messages.map((item) => (
+          <div key={item._id}>
+            <DayDivider
+              ref={(el: HTMLDivElement) => {
+                itemRefs.current[item._id] = el;
+                return itemRefs.current[item._id];
+              }}
+              createdAt={item._id}
+            />
+            {item.messages.map((item: MessageItemProps) =>
+              !item?.isSending ? (
+                <MessageItem key={item._id} message={item} />
+              ) : (
+                <MessageItemStatus key={item.uniqueId} message={item} />
+              )
+            )}
+          </div>
+        ))}
       </div>
       <div ref={chatEndRef} />
     </ScrollArea>

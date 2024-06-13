@@ -108,3 +108,12 @@ export const formatedMessageTime = (isoString: string) => {
 
   return formattedTime;
 };
+
+export const convertDateToTextName = (date: Date): string => {
+  const nameOfWeekday = date.toLocaleString("en-GB", { weekday: "long" });
+  const nameOfMonth = date.toLocaleString("en-GB", { month: "long" });
+  const day = date.getDate();
+  const dayPostfix =
+    day === 1 ? "st" : day === 2 ? "nd" : day === 3 ? "rd" : "th";
+  return `${nameOfWeekday}, ${nameOfMonth} ${day}${dayPostfix}`;
+};

@@ -1,9 +1,9 @@
-import { ChannelProps, MessageItemProps } from "@/types";
+import { ChannelProps, MessageCluster, MessageItemProps } from "@/types";
 import { create } from "zustand";
 import { replace } from "../utils";
 
 const initialState: Partial<ChannelState> = {
-  currentChannel: {} as ChannelProps,
+  // currentChannel: {} as ChannelProps,
   isSendingNewMessage: false,
   messages: [],
   files: [],
@@ -15,13 +15,14 @@ interface ChannelState {
   setPartialDataChannel: (channelData: Partial<ChannelProps>) => void;
   isSendingNewMessage: boolean;
   setIsSendingNewMessage: (isSendingNewMessage: boolean) => void;
-  messages: MessageItemProps[];
+  messages: MessageCluster[];
   setMessages: (
-    messages: MessageItemProps | MessageItemProps[],
+    messages: MessageCluster | MessageCluster[],
     isReplace?: boolean
   ) => void;
   updateMessageByUniqueId: (
     message: MessageItemProps,
+    clusterId: string,
     updateSending: boolean
   ) => void;
   updateMessage: (msgId: string, fieldName: string, fieldData: any) => void;
@@ -57,37 +58,80 @@ export const useChannelStore = create<ChannelState>((set) => ({
     })),
   messages: [],
   setMessages: (
-    messages: MessageItemProps | MessageItemProps[],
+    messages: MessageCluster | MessageCluster[],
     isReplace?: boolean
   ) => {
-    if (Array.isArray(messages)) {
-      return set((prevState) => ({
-        ...prevState,
-        messages: isReplace ? messages : [...prevState.messages, ...messages],
-      }));
-    }
-    return set((prevState) => ({
-      ...prevState,
-      messages: [...prevState.messages, messages],
-    }));
-  },
-  updateMessageByUniqueId: (
-    message: MessageItemProps,
-    updateSending: boolean
-  ) => {
     set((prevState) => {
-      const foundIndex = prevState.messages.findIndex(
-        (messageItem) =>
-          messageItem?.uniqueId == message.uniqueId &&
-          (!updateSending || messageItem?.isSending)
-      );
-
-      if (foundIndex === -1) return prevState;
-      const updatedMessage = replace(prevState.messages, foundIndex, message);
+      const isParamArray = Array.isArray(messages);
+      const newMessages = isParamArray ? messages : [messages];
+      let updatedMessages: MessageCluster[] = newMessages;
+      let oldMessages = prevState.messages;
+      if (!isReplace) {
+        if (
+          newMessages.length > 0 &&
+          oldMessages[0]._id === newMessages[newMessages.length - 1]._id
+        ) {
+          isParamArray
+            ? (oldMessages[0].messages = [
+                ...(newMessages.pop() as MessageCluster).messages,
+                ...oldMessages[0].messages,
+              ])
+            : (oldMessages[0].messages = [
+                ...oldMessages[0].messages,
+                ...(newMessages.pop() as MessageCluster).messages,
+              ]);
+        } else if (
+          newMessages.length > 0 &&
+          oldMessages[oldMessages.length - 1]._id ===
+            newMessages[newMessages.length - 1]._id
+        ) {
+          isParamArray
+            ? (oldMessages[oldMessages.length - 1].messages = [
+                ...(newMessages.pop() as MessageCluster).messages,
+                ...oldMessages[oldMessages.length - 1].messages,
+              ])
+            : (oldMessages[oldMessages.length - 1].messages = [
+                ...oldMessages[oldMessages.length - 1].messages,
+                ...(newMessages.pop() as MessageCluster).messages,
+              ]);
+        }
+        updatedMessages = isParamArray
+          ? [...newMessages, ...oldMessages]
+          : [...oldMessages, ...newMessages];
+      }
 
       return {
         ...prevState,
-        messages: updatedMessage,
+        messages: updatedMessages,
+      };
+    });
+  },
+  updateMessageByUniqueId: (
+    message: MessageItemProps,
+    clusterId: string,
+    updateSending: boolean
+  ) => {
+    set((prevState) => {
+      const prevClusters = [...prevState.messages];
+      const clusterIndex = prevState.messages.findIndex(
+        (item) => item._id === clusterId
+      );
+
+      if (clusterIndex === -1) return prevState;
+      const foundIndex = prevClusters[clusterIndex].messages.findIndex(
+        (msg) =>
+          msg.uniqueId === message.uniqueId && (!updateSending || msg.isSending)
+      );
+      if (foundIndex === -1) return prevState;
+      const updatedCluster = replace(
+        prevClusters[clusterIndex].messages,
+        foundIndex,
+        message
+      );
+      prevClusters[clusterIndex].messages = updatedCluster;
+      return {
+        ...prevState,
+        messages: prevClusters,
       };
     });
   },
@@ -115,9 +159,7 @@ export const useChannelStore = create<ChannelState>((set) => ({
     })),
   updateMessage: (msgId, fieldName, fieldData) => {
     set((prevState) => {
-      const foundIndex = prevState.messages.findIndex(
-        (messageItem) => messageItem._id == msgId
-      );
+      const foundIndex = -1;
 
       if (foundIndex === -1) return prevState;
       const updatedMessage = replace(prevState.messages, foundIndex, {
@@ -141,5 +183,9 @@ export const useChannelStore = create<ChannelState>((set) => ({
     set((prevState) => ({
       ...prevState,
       ...initialState,
+      currentChannel: {
+        ...prevState.currentChannel,
+        _id: "",
+      },
     })),
 }));

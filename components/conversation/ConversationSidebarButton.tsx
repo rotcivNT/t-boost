@@ -1,6 +1,5 @@
 import { useChannelStore } from "@/app/store/channel.store";
 import { cn } from "@/lib/utils";
-import { ChannelProps } from "@/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,11 +12,14 @@ interface IProps {
 function ConversationSidebarButton({ title, icon, href }: IProps) {
   const pathName = usePathname();
   const isActive = href && pathName.includes(href);
-  const clearOldChannelData = useChannelStore(
-    (state) => state.clearOldChannelData
-  );
+  const { clearOldChannelData, currentChannel } = useChannelStore((state) => ({
+    clearOldChannelData: state.clearOldChannelData,
+    currentChannel: state.currentChannel,
+  }));
   const onClick = () => {
-    clearOldChannelData();
+    if (!href.includes(currentChannel._id)) {
+      clearOldChannelData();
+    }
   };
   return (
     <Link

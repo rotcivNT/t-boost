@@ -43,7 +43,7 @@ function MoreActionButton({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        portalProps={{ container: container.current }}
+        portalProps={{ container: container?.current }}
         className="z-[99] relative bg-dark-primary w-[220px] max-w-full py-3 px-0 border-[rgb(112,114,118)]"
       >
         <div>

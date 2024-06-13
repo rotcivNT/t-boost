@@ -13,7 +13,6 @@ import js from "highlight.js/lib/languages/javascript";
 import { common, createLowlight } from "lowlight";
 
 import {
-  CreateBucketMessageProps,
   MessageType,
   SendMessageProps,
   UploadFileProps,
@@ -22,6 +21,7 @@ import { sendMessage, uploadFile } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { pusher } from "@/configs/pusher";
 import { cn } from "@/lib/utils";
+import { MessageCluster, MessageItemProps } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { Separator } from "@radix-ui/react-separator";
 import ts from "highlight.js/lib/languages/typescript";
@@ -29,7 +29,6 @@ import html from "highlight.js/lib/languages/xml";
 import { startTransition, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import PreviewList from "./preview-file/PreviewList";
-import { MessageItemProps } from "@/types";
 
 const lowlight = createLowlight(common);
 lowlight.register({ js });
@@ -133,9 +132,7 @@ function ChatInput() {
       },
       uniqueId: "",
       files: [],
-    };
-    const createBucketMessageDto: CreateBucketMessageProps = {
-      channelId: channel._id,
+      receiverId: channel._id,
       socketId: pusher.connection.socket_id,
     };
 
@@ -144,10 +141,6 @@ function ChatInput() {
         const formData = new FormData();
         const fileFormData = new FormData();
         const uniqueId = uuidv4();
-        const payload = {
-          createMessageItemDto,
-          createBucketMessageDto,
-        };
         let uploadRes: any = {
           // Fake upload file successfully
           code: 1,
@@ -157,14 +150,20 @@ function ChatInput() {
           channelId: channel._id,
           workspaceId: channel.workspaceID,
         };
-        const fakeMessages: MessageItemProps = {
-          _id: "",
-          ...createMessageItemDto,
-          isSending: true,
-          uniqueId,
-          filesStatus: files,
+        const clusterId = new Date().toISOString().split("T")[0];
+        const fakeMessage: MessageCluster = {
+          _id: clusterId,
+          messages: [
+            {
+              _id: "",
+              ...createMessageItemDto,
+              isSending: true,
+              uniqueId,
+              filesStatus: files,
+            },
+          ],
         };
-        setMessages(fakeMessages);
+        setMessages(fakeMessage);
         setIsSendingNewMessage(true);
         if (files.length > 0) {
           fileFormData.append("payload", JSON.stringify(uploadFilePayload));
@@ -176,14 +175,13 @@ function ChatInput() {
         }
 
         if (uploadRes?.code === 1) {
-          payload.createMessageItemDto.uniqueId = uniqueId;
-          payload.createMessageItemDto.files =
-            files.length > 0 ? uploadRes.data : [];
-          formData.append("payload", JSON.stringify(payload));
+          createMessageItemDto.uniqueId = uniqueId;
+          createMessageItemDto.files = files.length > 0 ? uploadRes.data : [];
+          formData.append("payload", JSON.stringify(createMessageItemDto));
           formData.append("uniqueId", uniqueId);
           const res = await sendMessage(formData);
-          console.log("Message res:", res);
-          updateMessageByUniqueId(res, true);
+          // console.log("Message res:", res);
+          updateMessageByUniqueId(res, clusterId, true);
           return;
         }
         if (uploadRes?.code === -1) {
