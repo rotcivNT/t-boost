@@ -1,0 +1,32 @@
+.file-viewer-header {
+    background: linear-gradient(#1d1c1d99,#1d1c1d00);
+    @apply z-[-1] pointer-events-none h-[85px] absolute top-0 left-0 right-0;
+}
+
+.file-viewer-footer {
+    background:linear-gradient(#1d1c1d00,#1d1c1d99);
+    @apply z-[-1] pointer-events-none h-[85px] absolute top-0 left-0 right-0;
+}
+
+.header-wrapper,
+.footer-wrapper,
+.close-button {
+    @apply transition-all duration-300
+}
+
+
+.container {
+    &:hover  {
+        .header-wrapper {
+            @apply opacity-100 translate-y-0;
+        }
+
+        .footer-wrapper {
+            @apply opacity-100 translate-y-0;
+        }
+
+        .close-button {
+            @apply opacity-100 translate-y-0;
+        }
+    }
+}

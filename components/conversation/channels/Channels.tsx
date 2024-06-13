@@ -5,7 +5,8 @@ import ConversationSidebarItem from "../ConversationSidebarItem";
 
 import { getAllChannelsById } from "@/app/services/action";
 import dynamic from "next/dynamic";
-import { channelAPI } from "@/app/apis/channelAPI";
+import { useEffect } from "react";
+import { useChannelStore } from "@/app/store/channel.store";
 const CreateButton = dynamic(() => import("../CreateButton"), { ssr: false });
 
 interface IProps {
@@ -30,6 +31,14 @@ function Channels({ type, workspaceId, userId }: IProps) {
     `?workspaceID=${workspaceId}&creatorID=${userId}`,
     getAllChannelsById
   );
+  const setChannels = useChannelStore((state) => state.setChannels);
+
+  useEffect(() => {
+    if (!isLoading && !error) {
+      setChannels(channels);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return (
     <ConversationSidebarItem title="Channels">

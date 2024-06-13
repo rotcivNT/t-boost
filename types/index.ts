@@ -1,3 +1,5 @@
+import { MessageType, Sender } from "@/app/apis/api-payload";
+
 interface ChannelMember {
   userID: string;
 
@@ -18,6 +20,10 @@ export interface BookmarkFolder {
   bookmarks: Bookmark[];
 }
 
+export interface ChannelSettings {
+  autoAddNewMember: boolean;
+}
+
 export interface ChannelProps {
   _id: string;
   name: string;
@@ -29,4 +35,44 @@ export interface ChannelProps {
   description?: string;
   bookmarks?: Bookmark[];
   bookmarkFolders?: BookmarkFolder[];
+  settings?: ChannelSettings;
+}
+
+export interface FileData {
+  type: string;
+  url: string;
+  mimeType: string;
+  size: number;
+  name: string;
+  originalWidth?: number;
+  originalHeight?: number;
+  blurHash?: string;
+}
+
+export interface MessageItemProps {
+  _id: string;
+  sender: Sender;
+  type: MessageType;
+  content: string;
+  files?: FileData[];
+  reactions?: any[];
+  isRecall?: boolean;
+  isDelete?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
+  // use for checking is sending when send message
+  isSending?: boolean;
+  uniqueId?: string;
+  filesStatus?: File[];
+}
+
+export interface BucketItemProps {
+  _id: string;
+  channelId: string;
+  dateTime: string;
+  count: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: MessageItemProps[];
 }

@@ -72,7 +72,7 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
             />
           </Link>
         </ContextMenuTrigger>
-        <ContextMenuContent className="bg-dark border-border">
+        <ContextMenuContent className="bg-dark-primary border-border">
           <DialogTrigger asChild>
             <ContextMenuItem className="text-[13px] text-text-primary">
               Edit

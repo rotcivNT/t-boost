@@ -22,13 +22,15 @@ function AddBookmarkMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="inline-flex items-center gap-1 cursor-pointer hover:bg-[rgba(255,255,255,0.06)] rounded-[4px] p-1">
-            <Plus {...iconStyles} widths={16} height={16} />
-            {!currentChannel?.bookmarkFolders && !currentChannel?.bookmarks && (
+            {!currentChannel?.bookmarkFolders?.length &&
+            !currentChannel?.bookmarks?.length ? (
               <span className="text-[13px] text-[#ABABAD]">Add a bookmark</span>
+            ) : (
+              <Plus {...iconStyles} widths={16} height={16} />
             )}
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-dark border-border w-[300px] py-4 px-0">
+        <DropdownMenuContent className="bg-dark-primary border-border w-[300px] py-4 px-0">
           <DialogTrigger className="text-left w-full">
             <DropdownMenuItem
               onClick={() => setIsFolder(true)}

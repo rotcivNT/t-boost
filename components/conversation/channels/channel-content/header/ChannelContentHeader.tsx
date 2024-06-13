@@ -1,7 +1,7 @@
-import BookmarkWrapper from "./bookmark/BookmarkWrapper";
-import ChannelButton from "./ChannelButton";
+import ChannelButton from "./channel-button/ChannelButton";
 import HuddleButton from "./HuddleButton";
 import MemberButton from "./MemberButton";
+import BookmarkWrapper from "./bookmark/BookmarkWrapper";
 
 function ChannelContentHeader() {
   return (

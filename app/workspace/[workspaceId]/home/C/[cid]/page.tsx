@@ -1,4 +1,10 @@
-import ChannelContent from "@/components/conversation/channels/channel-content/ChannelContent";
+import dynamic from "next/dynamic";
+
+const ChannelContent = dynamic(
+  () =>
+    import("@/components/conversation/channels/channel-content/ChannelContent"),
+  { ssr: false }
+);
 
 async function ChannelPage({
   searchParams,

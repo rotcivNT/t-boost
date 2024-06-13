@@ -80,7 +80,7 @@ function BookmarkFolderItem({ bookmarkFolder }: IProps) {
               />
             </DropdownMenuTrigger>
           </ContextMenuTrigger>
-          <ContextMenuContent className="bg-dark border-border">
+          <ContextMenuContent className="bg-dark-primary border-border">
             <DialogTrigger asChild>
               <ContextMenuItem
                 onClick={() => onClick(true)}
@@ -99,7 +99,7 @@ function BookmarkFolderItem({ bookmarkFolder }: IProps) {
             </DialogTrigger>
           </ContextMenuContent>
         </ContextMenu>
-        <DropdownMenuContent className="bg-dark border-border w-[300px] py-2 px-0">
+        <DropdownMenuContent className="bg-dark-primary border-border w-[300px] py-2 px-0">
           <DropdownBookmarkFolder bookmarkFolder={bookmarkFolder} />
           <Separator className="bg-[rgb(59,61,66)]" />
           <DialogTrigger className="text-left w-full pt-2">
