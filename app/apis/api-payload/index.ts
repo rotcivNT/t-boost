@@ -36,6 +36,10 @@ export enum MessageType {
 }
 
 export interface SendMessageProps {
+  receiverId: string;
+
+  socketId: string;
+
   sender: Sender;
 
   fowarder?: Sender;
@@ -55,11 +59,6 @@ export interface SendMessageProps {
   uniqueId: string;
 
   files?: FileData[];
-}
-
-export interface CreateBucketMessageProps {
-  channelId: string;
-  socketId?: string;
 }
 
 export interface GetMessageDto {

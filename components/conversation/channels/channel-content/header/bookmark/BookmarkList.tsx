@@ -60,8 +60,8 @@ function BookmarkList() {
     currentChannel &&
       JSON.stringify(currentChannel) !== "{}" &&
       setItems([
-        ...(currentChannel.bookmarkFolders as Array<BookmarkFolder>),
-        ...(currentChannel.bookmarks as Array<Bookmark>),
+        ...(currentChannel?.bookmarkFolders as Array<BookmarkFolder>),
+        ...(currentChannel?.bookmarks as Array<Bookmark>),
       ]);
   }, [currentChannel]);
 

@@ -2,13 +2,12 @@
 "use client";
 import { channelAPI } from "@/app/apis/channelAPI";
 import { useChannelStore } from "@/app/store/channel.store";
+import { Separator } from "@/components/ui/separator";
 import { pusher } from "@/configs/pusher";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useSWR from "swr";
 import ChannelContentHeader from "./header/ChannelContentHeader";
-import { Separator } from "@/components/ui/separator";
 import MessageContainer from "./messages/MessageContainer";
-import { ChannelProps } from "@/types";
 
 interface IProps {
   cid: string;
@@ -20,12 +19,12 @@ function ChannelContent({ cid }: IProps) {
     error,
     isLoading,
   } = useSWR(`/${cid}`, channelAPI.getChannelById);
-  const { setCurrentChannel, setPartialDataChannel } = useChannelStore(
-    (state) => ({
+  const { setCurrentChannel, setPartialDataChannel, currentChannel } =
+    useChannelStore((state) => ({
       setCurrentChannel: state.setCurrentChannel,
       setPartialDataChannel: state.setPartialDataChannel,
-    })
-  );
+      currentChannel: state.currentChannel,
+    }));
 
   useEffect(() => {
     let channelEvent: any = {
@@ -55,7 +54,9 @@ function ChannelContent({ cid }: IProps) {
     <div className="flex flex-col h-full">
       <ChannelContentHeader />
       <Separator />
-      <div className="flex-1 h-[calc(100%-126px)]">{<MessageContainer />}</div>
+      <div className="flex-1 h-[calc(100%-126px)]">
+        <MessageContainer />
+      </div>
     </div>
   );
 }

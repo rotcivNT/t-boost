@@ -1,4 +1,4 @@
 import Pusher from "pusher-js/with-encryption";
-export const pusher = new Pusher("e7bb011c90e1ac1b07cf", {
+export const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
   cluster: "ap1",
 });

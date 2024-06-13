@@ -67,12 +67,8 @@ export interface MessageItemProps {
   filesStatus?: File[];
 }
 
-export interface BucketItemProps {
+export interface MessageCluster {
+  // id is date
   _id: string;
-  channelId: string;
-  dateTime: string;
-  count: string;
-  createdAt: string;
-  updatedAt: string;
   messages: MessageItemProps[];
 }
