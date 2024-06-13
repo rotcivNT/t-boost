@@ -16,6 +16,7 @@ const config = {
     },
     screens: {
       lg: "900px",
+      xl: "1200px",
     },
     extend: {
       colors: {
@@ -52,8 +53,10 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        dark: "#222529",
+        "dark-primary": "#222529",
+        "dark-secondary": "#1A1D21",
         "text-primary": "#D1D2D3",
+        "text-secondary": "#ABABAD",
         dangerous: "#E01E5A",
       },
       borderRadius: {

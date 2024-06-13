@@ -100,7 +100,12 @@ export const AddChannelModal = () => {
       isPublic,
       creatorID: user?.id,
       workspaceID: organization?.id,
-      members: [user?.id],
+      members: [
+        {
+          userID: user?.id,
+          joinedAt: new Date(),
+        },
+      ],
     };
     startTransition(async () => {
       try {

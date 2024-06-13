@@ -37,7 +37,7 @@ const OverflowRenderer = (items: any) => {
         <MenubarTrigger className="flex justify-center items-center hover:bg-[rgba(255,255,255,0.06)] rounded-[4px] p-1 cursor-pointer">
           <DoubleChervonRight />
         </MenubarTrigger>
-        <MenubarContent className="bg-dark border-border min-w-[unset]">
+        <MenubarContent className="bg-dark-primary border-border min-w-[unset]">
           {items.map((item: any) => (
             <div key={item.name} className="px-2 py-1">
               {item?.bookmarks ? (

@@ -1,4 +1,5 @@
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { useChannelStore } from "@/app/store/channel.store";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -6,8 +7,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Image from "next/image";
+import ChannelDetails from "./channel-button/ChannelDetails";
 
 function MemberButton() {
+  const channel = useChannelStore().currentChannel;
   return (
     <Dialog>
       <TooltipProvider>
@@ -38,6 +41,9 @@ function MemberButton() {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
+      <DialogContent className="bg-dark-primary border-border rounded-[8px] p-0">
+        <ChannelDetails channel={channel} defaultTab="members" />
+      </DialogContent>
     </Dialog>
   );
 }

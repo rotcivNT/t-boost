@@ -103,3 +103,40 @@
 .cl-internal-g6a67s:focus {
   @apply shadow-none;
 }
+
+/* Custom Placeholder Tiptap */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #6f7278;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+ul {
+  list-style: disc;
+}
+
+ol {
+  list-style: decimal;
+}
+
+.list-markdown {
+  margin-left: 24px;
+}
+
+.tiptap-img-input {
+  width: 62px;
+  height: 62px;
+  border-radius: 8px;
+  border: 1px solid rgb(59, 61, 66);
+}
+
+.tiptap-img-wrapper {
+  display: flex;
+  gap: 4px;
+  align-content: center;
+  flex-wrap: wrap;
+}
