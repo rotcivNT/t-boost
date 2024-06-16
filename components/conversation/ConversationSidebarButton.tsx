@@ -17,7 +17,7 @@ function ConversationSidebarButton({ title, icon, href }: IProps) {
     currentChannel: state.currentChannel,
   }));
   const onClick = () => {
-    if (!href.includes(currentChannel._id)) {
+    if (!href.includes(currentChannel._id) && currentChannel?._id !== "") {
       clearOldChannelData();
     }
   };

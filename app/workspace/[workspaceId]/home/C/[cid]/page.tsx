@@ -6,12 +6,8 @@ const ChannelContent = dynamic(
   { ssr: false }
 );
 
-async function ChannelPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  return <ChannelContent cid={searchParams.cid as string} />;
+async function ChannelPage({ params }: { params: { [key: string]: string } }) {
+  return <ChannelContent cid={params.cid as string} />;
 }
 
 export default ChannelPage;

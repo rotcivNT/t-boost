@@ -18,8 +18,12 @@ export const channelAPI = {
   getAllChannelsById: async (url: string) => fetch(baseURL + url),
   // Channel Id
   getChannelById: async (url: string) => {
-    const res = await fetch(baseURL + url);
-    return res.json();
+    try {
+      const res = await fetch(baseURL + url);
+      return res.json();
+    } catch (e) {
+      return e;
+    }
   },
   sendInvitation: async (payload: sendInvitationPayload) =>
     axios.post(`${baseURL}/send-invitation`, payload),
