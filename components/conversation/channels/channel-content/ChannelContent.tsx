@@ -39,6 +39,7 @@ function ChannelContent({ cid }: IProps) {
 
     if (!isLoading && !error) {
       setCurrentChannel(channel);
+
       if (channel) {
         channelEvent = pusher.subscribe(channel._id);
         channelEvent.bind("new-member-joined", handleChangeMembership);

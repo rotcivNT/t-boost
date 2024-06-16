@@ -59,6 +59,8 @@ function BookmarkList() {
   useEffect(() => {
     currentChannel &&
       JSON.stringify(currentChannel) !== "{}" &&
+      currentChannel?.bookmarkFolders &&
+      currentChannel?.bookmarks &&
       setItems([
         ...(currentChannel?.bookmarkFolders as Array<BookmarkFolder>),
         ...(currentChannel?.bookmarks as Array<Bookmark>),
