@@ -6,6 +6,8 @@ const ChannelContent = dynamic(
   { ssr: false }
 );
 
+export const runtime = "edge";
+
 async function ChannelPage({
   searchParams,
 }: {
