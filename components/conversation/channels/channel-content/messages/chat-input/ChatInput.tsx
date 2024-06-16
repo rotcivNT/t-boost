@@ -172,6 +172,7 @@ function ChatInput() {
           );
           clearFiles();
           uploadRes = await uploadFile(fileFormData);
+          console.log(uploadRes);
         }
 
         if (uploadRes?.code === 1) {

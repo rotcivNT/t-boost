@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import MemberButton, { MemberButtonLoading } from "./MemberButton";
 import Search from "./Search";
+import { clerkClient } from "@/configs/clerkClient";
 
 function MemberContent() {
   const channel = useChannelStore((state) => state.currentChannel);
@@ -18,7 +19,7 @@ function MemberContent() {
   useEffect(() => {
     const fetchUser = async (userId: string) => {
       try {
-        const resJson = await getUserInfo(userId);
+        const resJson = await getUserInfo(clerkClient, userId);
         return JSON.parse(resJson as string);
       } catch (e) {
         console.log(e);

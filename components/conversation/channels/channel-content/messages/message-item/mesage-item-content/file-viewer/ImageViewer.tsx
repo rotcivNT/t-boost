@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { FileData } from "@/types";
 import Image from "next/image";

@@ -1,8 +1,8 @@
+"use client";
 import { Loader2 } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "../ui/button";
 import { DialogClose, DialogFooter, DialogHeader } from "../ui/dialog";
-import { iconStyles } from "../workspace/sidebar/sidebar-body/SidebarList";
-import { useRef } from "react";
 
 interface IProps {
   title: string;
