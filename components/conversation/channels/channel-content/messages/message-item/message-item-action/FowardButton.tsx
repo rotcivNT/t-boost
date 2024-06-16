@@ -1,9 +1,5 @@
-import {
-  CreateBucketMessageProps,
-  SendMessageProps,
-  Sender,
-} from "@/app/apis/api-payload";
-import { forwardMessage, sendMessage } from "@/app/services/action";
+import { SendMessageProps, Sender } from "@/app/apis/api-payload";
+import { forwardMessage } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,32 +31,31 @@ function FowardButton({ message }: IProps) {
   const { user } = useUser();
   const onFowardMessage = async (channelId: string) => {
     try {
-      const uniqueId = uuidv4();
-      const createMessageItemDto: SendMessageProps = {
-        ...message,
-        uniqueId,
-        reactions: [],
-      };
-
-      const createBucketMessageDto: CreateBucketMessageProps = {
-        channelId,
-        socketId: pusher.connection.socket_id,
-      };
-      if (message.sender.senderId !== (user?.id as string)) {
-        const forwarder: Sender = {
-          fullName: user?.fullName as string,
-          imageUrl: user?.imageUrl as string,
-          senderId: user?.id as string,
-        };
-        createMessageItemDto.fowarder = forwarder;
-      }
-      const payload = {
-        createMessageItemDto,
-        createBucketMessageDto,
-      };
-      const res = await forwardMessage(payload);
-      updateMessageByUniqueId(res, true);
-      setSended((prev) => [...prev, channelId]);
+      // const uniqueId = uuidv4();
+      // const createMessageItemDto: SendMessageProps = {
+      //   ...message,
+      //   uniqueId,
+      //   reactions: [],
+      // };
+      // const createBucketMessageDto: CreateBucketMessageProps = {
+      //   channelId,
+      //   socketId: pusher.connection.socket_id,
+      // };
+      // if (message.sender.senderId !== (user?.id as string)) {
+      //   const forwarder: Sender = {
+      //     fullName: user?.fullName as string,
+      //     imageUrl: user?.imageUrl as string,
+      //     senderId: user?.id as string,
+      //   };
+      //   createMessageItemDto.fowarder = forwarder;
+      // }
+      // const payload = {
+      //   createMessageItemDto,
+      //   createBucketMessageDto,
+      // };
+      // const res = await forwardMessage(payload);
+      // updateMessageByUniqueId(res, true);
+      // setSended((prev) => [...prev, channelId]);
     } catch (e) {
       console.log(e);
     }

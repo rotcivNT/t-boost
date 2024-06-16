@@ -1,3 +1,4 @@
+"use client";
 import { UpdateChannelProps } from "@/app/apis/api-payload";
 import { updateChannel } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";

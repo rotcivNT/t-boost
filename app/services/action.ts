@@ -1,7 +1,4 @@
 "use server";
-
-import { clerkClient } from "@/configs/clerkClient";
-import { ChannelProps } from "@/types";
 import {
   DeleteFileInMessageProps,
   UpdateChannelProps,
@@ -29,7 +26,7 @@ export const getAllChannelsById = async (url: string) => {
   }
 };
 
-export const getUserInfo = async (userId: string) => {
+export const getUserInfo = async (clerkClient: any, userId: string) => {
   try {
     const res = await clerkClient.users.getUser(userId);
     return JSON.stringify(res);
@@ -80,6 +77,7 @@ export const uploadFile = async (formData: FormData) => {
     const res = await uploadAPI.uploadFile(formData);
     return res.json();
   } catch (e) {
+    console.log(e);
     return e;
   }
 };

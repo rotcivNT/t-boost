@@ -1,15 +1,9 @@
+"use client";
 import { formatedMessageTime } from "@/app/utils";
 import { cn } from "@/lib/utils";
 import { MessageItemProps } from "@/types";
 import Image from "next/image";
-import {
-  LegacyRef,
-  RefObject,
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useRef, useState } from "react";
 import MessageItemContent from "./mesage-item-content/MessageItemContent";
 import MessageItemAction from "./message-item-action/MessageItemAction";
 

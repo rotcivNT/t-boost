@@ -1,21 +1,15 @@
+"use client";
 import { UpdateMessageProps } from "@/app/apis/api-payload";
 import { updateMessage } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { pusher } from "@/configs/pusher";
-import { Emoji, EmojiClickData, Theme } from "emoji-picker-react";
-import { Ellipsis, Forward, Smile } from "lucide-react";
-import dynamic from "next/dynamic";
-import { RefObject, useRef, useState } from "react";
-import FowardButton from "./FowardButton";
 import { MessageItemProps } from "@/types";
+import { EmojiClickData, Theme } from "emoji-picker-react";
+import { Smile } from "lucide-react";
+import dynamic from "next/dynamic";
+import { RefObject, useState } from "react";
+import FowardButton from "./FowardButton";
 import MoreActionButton from "./MoreActionButton";
 const Picker = dynamic(
   () => {
