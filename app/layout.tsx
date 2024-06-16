@@ -4,6 +4,7 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const beVietNamPro = Be_Vietnam_Pro({
   weight: ["300", "400", "500", "600", "700"],
@@ -33,6 +34,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <SpeedInsights />
             <Toaster />
           </ThemeProvider>
         </body>
