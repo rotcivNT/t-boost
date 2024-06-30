@@ -62,7 +62,7 @@ function MessageList() {
       revalidateOnFocus: false,
     }
   );
-
+  console.log(data);
   const loadMoreMessages = () => {
     startTransition(async () => {
       const firstCluster: MessageCluster = messages.entries().next().value[1];
