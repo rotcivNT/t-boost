@@ -55,7 +55,7 @@ function MessageList() {
     queryURL,
     messageAPI.getMessagesList
   );
-
+  console.log(data);
   const loadMoreMessages = () => {
     startTransition(async () => {
       setPage((prev) => prev + 1);
