@@ -16,6 +16,7 @@ export default authMiddleware({
       return NextResponse.redirect(redirectURL, 308);
     }
   },
+  ignoredRoutes: ["/api/webhooks(.*)"],
 });
 
 export const config = {

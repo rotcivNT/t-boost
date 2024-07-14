@@ -9,9 +9,9 @@ import { ContextMenuTrigger } from "@radix-ui/react-context-menu";
 import Image from "next/image";
 import Link from "next/link";
 import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { socket } from "@/configs/socket";
+// import { socket } from "@/configs/socket";
 import { usePathname } from "next/navigation";
 import { LinkIcon } from "lucide-react";
 
@@ -22,6 +22,8 @@ interface IProps {
 
 function BookmarkItem({ bookmark, folderName }: IProps) {
   const channelId = usePathname().split("/C/")[1];
+  const [isDelete, setIsDelete] = useState(false);
+  const [isEdit, setIsEdit] = useState(true);
   const initValue = useMemo(() => {
     return {
       name: bookmark.name,
@@ -34,16 +36,9 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
   const onCoppyLink = () => {
     navigator.clipboard.writeText(bookmark.url);
   };
-  const onDelete = () => {
-    const payload = {
-      channelId,
-      bookmarkData: {
-        bookmarkName: bookmark.name,
-        parentName: folderName,
-        isFolder: false,
-      },
-    };
-    socket.emit("delete-bookmark", payload);
+  const onDelete = (value: boolean) => {
+    setIsDelete(value);
+    setIsEdit(!value);
   };
   return (
     <Dialog>
@@ -63,6 +58,7 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
                     src={bookmark.thumbnail}
                     width={16}
                     height={16}
+                    className="size-4 object-contain"
                   />
                 ) : (
                   <LinkIcon width={16} height={16} color="#ABABAD" />
@@ -74,16 +70,21 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
         </ContextMenuTrigger>
         <ContextMenuContent className="bg-dark-primary border-border">
           <DialogTrigger asChild>
-            <ContextMenuItem className="text-[13px] text-text-primary">
+            <ContextMenuItem
+              onClick={() => onDelete(false)}
+              className="text-[13px] text-text-primary"
+            >
               Edit
             </ContextMenuItem>
           </DialogTrigger>
-          <ContextMenuItem
-            onClick={onDelete}
-            className="text-[13px] text-text-primary"
-          >
-            Delete
-          </ContextMenuItem>
+          <DialogTrigger asChild>
+            <ContextMenuItem
+              onClick={() => onDelete(true)}
+              className="text-[13px] text-text-primary"
+            >
+              Delete
+            </ContextMenuItem>
+          </DialogTrigger>
           <ContextMenuItem
             onClick={onCoppyLink}
             className="text-[13px] text-text-primary"
@@ -95,7 +96,8 @@ function BookmarkItem({ bookmark, folderName }: IProps) {
           isFolder={false}
           folderName={folderName}
           initValue={initValue}
-          isEdit={true}
+          isEdit={isEdit}
+          isDelete={isDelete}
         />
       </ContextMenu>
     </Dialog>

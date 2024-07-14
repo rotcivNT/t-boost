@@ -7,19 +7,28 @@ import {
   DialogContent,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { socket } from "@/configs/socket";
 import { cn } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import AddBookmarkContent from "./AddBookmarkContent";
 import DeleteBookmarkContent from "./DeleteBookmarkContent";
+import {
+  createBookmark,
+  deleteBookmark,
+  updateBookmark,
+} from "@/app/services/action";
+import {
+  CreateBookmarkProps,
+  DeleteBookmarkProps,
+} from "@/app/apis/api-payload";
 
 export type BookmarkData = {
   name: string;
   url: string;
   thumbnail: string;
   folderName?: string;
+  previousName?: string;
 };
 
 interface IProps {
@@ -39,6 +48,7 @@ export const BookmarkDialogContent = ({
 }: IProps) => {
   const initState = useMemo(() => {
     let name = initValue?.name && isEdit ? initValue.name : "";
+
     return {
       url: "",
       thumbnail: "",
@@ -54,8 +64,8 @@ export const BookmarkDialogContent = ({
   const closeButtonRef = useRef<any>(null);
 
   const onCreate = () => {
-    startTransition(() => {
-      const data: any = {
+    startTransition(async () => {
+      const data: CreateBookmarkProps = {
         channelId,
         isFolder,
         payload: {
@@ -68,32 +78,35 @@ export const BookmarkDialogContent = ({
 
       if (isEdit) {
         data.payload.previousName = initValue?.name;
-        socket.emit("update-bookmark", data);
-      } else socket.emit("add-bookmark", data);
+        const res = await updateBookmark(data);
+        console.log(res);
+      } else {
+        const res = await createBookmark(data);
+        console.log(res);
+      }
     });
   };
 
   const onDelete = () => {
-    startTransition(() => {
-      const payload = {
+    startTransition(async () => {
+      const payload: DeleteBookmarkProps = {
+        bookmarkName: isFolder
+          ? (initState.folderName as string)
+          : (initValue?.name as string),
         channelId,
-        bookmarkData: {
-          bookmarkName: initState.name,
-          isFolder,
-        },
+        isFolder,
+        parentName: !isFolder ? (initState.folderName as string) : "",
       };
 
-      socket.emit("delete-bookmark", payload);
+      try {
+        const res = await deleteBookmark(payload);
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
     });
   };
 
-  useEffect(() => {
-    socket.on("add-bookmark", (data) => {
-      if (!data?.code) {
-        setCurrentChannel(data);
-      }
-    });
-  }, []);
   useEffect(() => {
     if (!isPending) {
       closeButtonRef.current?.click();
@@ -103,6 +116,7 @@ export const BookmarkDialogContent = ({
   useEffect(() => {
     setBookmarkData(initState);
   }, [isEdit]);
+
   return (
     <DialogContent className="sm:max-w-md bg-[#1A1D21] border-[rgb(59,61,66)] rounded-[6px]">
       {!isDelete ? (
@@ -116,7 +130,7 @@ export const BookmarkDialogContent = ({
         <DeleteBookmarkContent isFolder={isFolder} />
       )}
       <DialogFooter className="flex-row justify-end pt-6">
-        <DialogClose ref={closeButtonRef}>
+        <DialogClose asChild ref={closeButtonRef}>
           <Button
             variant="outline"
             className="w-20 mr-3 bg-inherit border-[rgba(209,210,211,.3)]"

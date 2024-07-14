@@ -1,18 +1,15 @@
 "use client";
-import {
-  detectTypeFileFromUrl,
-  getFileExtension,
-  getIconOfFile,
-} from "@/app/utils";
+import { getFileExtension, getIconOfFile } from "@/app/utils";
 import { cn } from "@/lib/utils";
 import { FileData } from "@/types";
 import Image from "next/image";
-import { useState } from "react";
 
 interface IProps {
   fileData: FileData;
   onClick: () => void;
 }
+
+const supportFileExtension = ["docx", "doc", "xls", "xlsx", "json", "pdf"];
 
 function FileMessage({ fileData, onClick }: IProps) {
   const extension = getFileExtension(fileData.mimeType);
@@ -28,14 +25,18 @@ function FileMessage({ fileData, onClick }: IProps) {
       return `${sizeInMB.toFixed(2)} MB`;
     }
   };
+  const onOpenFileViewer = supportFileExtension.includes(extension)
+    ? onClick
+    : undefined;
 
   return (
     <>
       <div
-        onClick={onClick}
+        onClick={onOpenFileViewer}
         className={cn(
           "flex items-start gap-2 bg-dark-secondary rounded-[8px] border border-border",
-          "px-4 py-2 cursor-zoom-in"
+          "px-4 py-2",
+          `${onOpenFileViewer ? "cursor-zoom-in" : "cursor-default"}`
         )}
       >
         <p className="relative top-[2px]">

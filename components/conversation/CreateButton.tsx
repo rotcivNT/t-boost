@@ -11,7 +11,7 @@ interface IProps {
 function CreateButton({ title, onClick }: IProps) {
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button
           variant="secondary"
           size="auto"

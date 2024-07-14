@@ -9,7 +9,6 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import MemberButton, { MemberButtonLoading } from "./MemberButton";
 import Search from "./Search";
-import { clerkClient } from "@/configs/clerkClient";
 
 function MemberContent() {
   const channel = useChannelStore((state) => state.currentChannel);
@@ -17,9 +16,11 @@ function MemberContent() {
   const [membersInfo, setMembersInfo] = useState<any>([] as any);
   const [isPending, startTransition] = useTransition();
   useEffect(() => {
-    const fetchUser = async (userId: string) => {
+    console.log("fetch user again");
+
+    const fetchUsers = async (userId: string[]) => {
       try {
-        const resJson = await getUserInfo(clerkClient, userId);
+        const resJson = await getUserInfo(userId);
         return JSON.parse(resJson as string);
       } catch (e) {
         console.log(e);
@@ -27,12 +28,10 @@ function MemberContent() {
     };
     if (channel) {
       startTransition(async () => {
-        const membersInfo: any = [];
-        for (const member of channel.members) {
-          const userInfo = await fetchUser(member.userID);
-          membersInfo.push(userInfo);
-        }
-        setMembersInfo(membersInfo);
+        const membersId = channel.members.map((member) => member.userID);
+
+        const res = await fetchUsers(membersId);
+        setMembersInfo(res);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,12 +57,14 @@ function MemberContent() {
           {isPending ? (
             <MemberButtonLoading />
           ) : (
-            membersInfo.length &&
+            membersInfo.length > 0 &&
             membersInfo.map((member: any) => (
               <MemberButton
                 name={`${member.firstName} ${member.lastName}`}
                 key={member.id}
                 userId={member.id}
+                creatorId={channel.creatorID}
+                channelId={channel._id}
                 leftIcon={
                   <Image
                     src={member.imageUrl}

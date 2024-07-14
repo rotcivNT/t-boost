@@ -2,6 +2,7 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import MessageItemContentStatus from "./MessageItemContentStatus";
 import { MessageItemProps } from "@/types";
+import MessageReply from "../message-item/mesage-item-content/MessageReply";
 
 interface IProps {
   message: MessageItemProps;
@@ -26,6 +27,9 @@ function MessageItemStatus({ message }: IProps) {
             </p>
           </div>
 
+          {message?.replyMessage?.length > 0 && (
+            <MessageReply replyMessage={message.replyMessage[0]} />
+          )}
           <MessageItemContentStatus message={message} />
         </div>
       </div>

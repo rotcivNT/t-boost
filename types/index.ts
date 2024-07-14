@@ -1,4 +1,4 @@
-import { MessageType, Sender } from "@/app/apis/api-payload";
+import { LinkMetadata, MessageType, Sender } from "@/app/apis/api-payload";
 
 interface ChannelMember {
   userID: string;
@@ -51,7 +51,8 @@ export interface FileData {
 
 export interface MessageItemProps {
   _id: string;
-  sender: Sender;
+  senderId: string;
+  sender?: Sender;
   type: MessageType;
   content: string;
   files?: FileData[];
@@ -61,6 +62,8 @@ export interface MessageItemProps {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string;
+  replyMessage: MessageItemProps[];
+  metadata?: LinkMetadata;
   // use for checking is sending when send message
   isSending?: boolean;
   uniqueId?: string;
@@ -71,4 +74,21 @@ export interface MessageCluster {
   // id is date
   _id: string;
   messages: MessageItemProps[];
+}
+
+export enum ActionType {
+  EDIT = "edit",
+  REPLY = "reply",
+}
+
+export interface ActionForMessage {
+  type: ActionType;
+  message: MessageItemProps;
+}
+
+export interface QueryMessageProps {
+  aroundId?: string;
+  receiverId: string;
+  beforeId?: string;
+  afterId?: string;
 }

@@ -1,5 +1,4 @@
 import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
-import { X } from "lucide-react";
 
 interface IProps {
   uri: string;

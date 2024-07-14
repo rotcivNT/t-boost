@@ -70,6 +70,7 @@ function AddMemberDialog() {
               senderEmail: user?.emailAddresses[0].emailAddress as string,
               receiverEmail: chip.content.trim(),
               role: "org:member",
+              senderId: user?.id as string,
             };
             await channelAPI.sendInvitation(payload);
           } catch (e) {
@@ -81,13 +82,17 @@ function AddMemberDialog() {
         ...currentChannel.settings,
         autoAddNewMember: isSwich,
       };
-      try {
-        const res: any = await updateChannel(currentChannel._id, { settings });
-        if (res.code === 1) {
-          setPartialDataChannel({ settings });
+      if (isSwich !== currentChannel.settings?.autoAddNewMember) {
+        try {
+          const res: any = await updateChannel(currentChannel._id, {
+            settings,
+          });
+          if (res.code === 1) {
+            setPartialDataChannel({ settings });
+          }
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
       }
 
       toast({

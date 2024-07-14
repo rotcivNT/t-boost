@@ -28,7 +28,7 @@ function Channels({ type, workspaceId, userId }: IProps) {
     error,
     isLoading,
   } = useSWR(
-    `?workspaceID=${workspaceId}&creatorID=${userId}`,
+    `?workspaceId=${workspaceId}&userId=${userId}`,
     getAllChannelsById
   );
   const setChannels = useChannelStore((state) => state.setChannels);
@@ -52,6 +52,7 @@ function Channels({ type, workspaceId, userId }: IProps) {
           <ChannelLoading />
         </>
       ) : (
+        channels &&
         channels?.map((channel: any) => (
           <ConversationSidebarButton
             key={channel._id}

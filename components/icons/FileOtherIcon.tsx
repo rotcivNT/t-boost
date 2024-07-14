@@ -23,8 +23,8 @@ export const FileOtherIcon = ({
         y2="14.4637031%"
         id="linearGradient-1"
       >
-        <stop stop-color="#02D6F8" offset="0%"></stop>
-        <stop stop-color="#01ADEE" offset="100%"></stop>
+        <stop stopColor="#02D6F8" offset="0%"></stop>
+        <stop stopColor="#01ADEE" offset="100%"></stop>
       </linearGradient>
     </defs>
     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">

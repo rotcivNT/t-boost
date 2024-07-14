@@ -1,11 +1,16 @@
 import axios from "axios";
-import { UpdateChannelProps, sendInvitationPayload } from "./api-payload";
-const baseURL =
-  process.env.NEXT_PUBLIC_CHANNEL_API_BASE_URL + "/v1/api/channels";
+import {
+  CreateBookmarkProps,
+  DeleteBookmarkProps,
+  RemoveUserProps,
+  UpdateChannelProps,
+  sendInvitationPayload,
+} from "./api-payload";
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL + "/v1/api/channels";
 
 export const channelAPI = {
   createChannel: async (payload: any) => {
-    return fetch(baseURL, {
+    return fetch(baseURL + "/create-channel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,14 +44,47 @@ export const channelAPI = {
     });
   },
   acceptInvitation: async (invitationId: string) => {
-    return fetch(`${baseURL}/accept-invitation`, {
+    return fetch(`${baseURL}/accept-invitation/${invitationId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        invitationId,
-      }),
+    });
+  },
+  removeUser: (payload: RemoveUserProps) => {
+    return fetch(`${baseURL}/remove-user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  createBookmark: (payload: CreateBookmarkProps) => {
+    return fetch(`${baseURL}/add-bookmark/${payload.channelId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  updateBookmark: (payload: CreateBookmarkProps) => {
+    return fetch(`${baseURL}/update-bookmark/${payload.channelId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  deleteBookmark: (payload: DeleteBookmarkProps) => {
+    return fetch(`${baseURL}/delete-bookmark/${payload.channelId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
   },
 };

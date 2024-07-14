@@ -1,6 +1,11 @@
-import Conversation from "@/components/conversation/Conversation";
+import dynamic from "next/dynamic";
+const Conversation = dynamic(
+  () => import("@/components/conversation/Conversation"),
+  {
+    ssr: false,
+  }
+);
 
-export const runtime = "edge";
 function HomePage() {
   return (
     <div>

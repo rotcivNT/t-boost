@@ -1,11 +1,13 @@
-import { ChannelProps, MessageCluster, MessageItemProps } from "@/types";
+import { ActionForMessage, ChannelProps, MessageCluster } from "@/types";
 import { create } from "zustand";
 import { replace } from "../utils";
+import { MessageItemProps } from "./../../types/index";
+import { stringToTimestamp } from "../utils/date";
 
 const initialState: Partial<ChannelState> = {
   // currentChannel: {} as ChannelProps,
   isSendingNewMessage: false,
-  messages: [],
+  messages: new Map<string, MessageCluster>(),
   files: [],
 };
 
@@ -15,7 +17,7 @@ interface ChannelState {
   setPartialDataChannel: (channelData: Partial<ChannelProps>) => void;
   isSendingNewMessage: boolean;
   setIsSendingNewMessage: (isSendingNewMessage: boolean) => void;
-  messages: MessageCluster[];
+  messages: Map<string, MessageCluster>;
   setMessages: (
     messages: MessageCluster | MessageCluster[],
     isReplace?: boolean
@@ -25,7 +27,12 @@ interface ChannelState {
     clusterId: string,
     updateSending: boolean
   ) => void;
-  updateMessage: (msgId: string, fieldName: string, fieldData: any) => void;
+  updateMessage: (
+    msgId: string,
+    clusterId: string,
+    fieldName: string,
+    fieldData: any
+  ) => void;
   files: File[];
   setFiles: (file: File) => void;
   removeSpecificFile: (fileName: string, lastModified: number) => void;
@@ -33,6 +40,8 @@ interface ChannelState {
   channels: ChannelProps[];
   setChannels: (channels: ChannelProps[]) => void;
   clearOldChannelData: () => void;
+  actionMessage: ActionForMessage | null;
+  setActionMessage: (message: ActionForMessage | null) => void;
 }
 
 export const useChannelStore = create<ChannelState>((set) => ({
@@ -56,53 +65,62 @@ export const useChannelStore = create<ChannelState>((set) => ({
       ...prevState,
       isSendingNewMessage,
     })),
-  messages: [],
+  messages: new Map<string, MessageCluster>(),
   setMessages: (
     messages: MessageCluster | MessageCluster[],
     isReplace?: boolean
   ) => {
     set((prevState) => {
-      const isParamArray = Array.isArray(messages);
-      const newMessages = isParamArray ? messages : [messages];
-      let updatedMessages: MessageCluster[] = newMessages;
-      let oldMessages = prevState.messages;
-      if (!isReplace) {
-        if (
-          newMessages.length > 0 &&
-          oldMessages[0]._id === newMessages[newMessages.length - 1]._id
-        ) {
-          isParamArray
-            ? (oldMessages[0].messages = [
-                ...(newMessages.pop() as MessageCluster).messages,
-                ...oldMessages[0].messages,
-              ])
-            : (oldMessages[0].messages = [
-                ...oldMessages[0].messages,
-                ...(newMessages.pop() as MessageCluster).messages,
-              ]);
-        } else if (
-          newMessages.length > 0 &&
-          oldMessages[oldMessages.length - 1]._id ===
-            newMessages[newMessages.length - 1]._id
-        ) {
-          isParamArray
-            ? (oldMessages[oldMessages.length - 1].messages = [
-                ...(newMessages.pop() as MessageCluster).messages,
-                ...oldMessages[oldMessages.length - 1].messages,
-              ])
-            : (oldMessages[oldMessages.length - 1].messages = [
-                ...oldMessages[oldMessages.length - 1].messages,
-                ...(newMessages.pop() as MessageCluster).messages,
-              ]);
+      const newestMessages = new Map(prevState.messages);
+      const messagesForAdd = Array.isArray(messages) ? messages : [messages];
+      if (!isReplace && newestMessages.size > 0) {
+        const lastClusterWillAdd = messagesForAdd.pop() as MessageCluster;
+        const firstClusterWillAdd =
+          messagesForAdd.length === 0
+            ? lastClusterWillAdd
+            : (messagesForAdd.shift() as MessageCluster);
+
+        if (newestMessages.has(lastClusterWillAdd._id)) {
+          const currentCluster: MessageCluster = newestMessages.get(
+            lastClusterWillAdd._id
+          ) as MessageCluster;
+          const currentMessageDate = stringToTimestamp(
+            currentCluster.messages[0].createdAt as string
+          );
+          const incomingMessageDate = stringToTimestamp(
+            lastClusterWillAdd.messages[0].createdAt as string
+          );
+
+          if (currentMessageDate > incomingMessageDate) {
+            currentCluster?.messages.unshift(...lastClusterWillAdd.messages);
+          } else {
+            currentCluster?.messages.push(...lastClusterWillAdd.messages);
+          }
+        } else if (newestMessages.has(firstClusterWillAdd._id)) {
+          const currentCluster: MessageCluster = newestMessages.get(
+            lastClusterWillAdd._id
+          ) as MessageCluster;
+          const currentMessageDate = stringToTimestamp(
+            currentCluster.messages[0].createdAt as string
+          );
+          const incomingMessageDate = stringToTimestamp(
+            lastClusterWillAdd.messages[0].createdAt as string
+          );
+          if (currentMessageDate > incomingMessageDate) {
+            currentCluster?.messages.unshift(...firstClusterWillAdd.messages);
+          } else {
+            currentCluster?.messages.push(...firstClusterWillAdd.messages);
+          }
         }
-        updatedMessages = isParamArray
-          ? [...newMessages, ...oldMessages]
-          : [...oldMessages, ...newMessages];
       }
 
+      // Add rest messages or replace will add all messages
+      messagesForAdd.forEach((cluster) => {
+        newestMessages.set(cluster._id, cluster);
+      });
       return {
         ...prevState,
-        messages: updatedMessages,
+        messages: newestMessages,
       };
     });
   },
@@ -112,26 +130,21 @@ export const useChannelStore = create<ChannelState>((set) => ({
     updateSending: boolean
   ) => {
     set((prevState) => {
-      const prevClusters = [...prevState.messages];
-      const clusterIndex = prevState.messages.findIndex(
-        (item) => item._id === clusterId
-      );
-
-      if (clusterIndex === -1) return prevState;
-      const foundIndex = prevClusters[clusterIndex].messages.findIndex(
-        (msg) =>
-          msg.uniqueId === message.uniqueId && (!updateSending || msg.isSending)
-      );
-      if (foundIndex === -1) return prevState;
-      const updatedCluster = replace(
-        prevClusters[clusterIndex].messages,
-        foundIndex,
-        message
-      );
-      prevClusters[clusterIndex].messages = updatedCluster;
+      const newestMessages = new Map(prevState.messages);
+      const cluster = newestMessages.get(clusterId);
+      if (cluster) {
+        const updateMessageIndex = cluster.messages.findIndex(
+          (messageItem) =>
+            messageItem.uniqueId === message.uniqueId &&
+            (!updateSending || messageItem.isSending)
+        );
+        if (updateMessageIndex !== -1) {
+          cluster.messages[updateMessageIndex] = message;
+        }
+      }
       return {
         ...prevState,
-        messages: prevClusters,
+        messages: newestMessages,
       };
     });
   },
@@ -157,19 +170,10 @@ export const useChannelStore = create<ChannelState>((set) => ({
       ...prevState,
       files: [],
     })),
-  updateMessage: (msgId, fieldName, fieldData) => {
+  updateMessage: (msgId, clusterId, fieldName, fieldData) => {
     set((prevState) => {
-      const foundIndex = -1;
-
-      if (foundIndex === -1) return prevState;
-      const updatedMessage = replace(prevState.messages, foundIndex, {
-        ...prevState.messages[foundIndex],
-        [fieldName]: fieldData,
-      });
-
       return {
         ...prevState,
-        messages: updatedMessage,
       };
     });
   },
@@ -187,5 +191,11 @@ export const useChannelStore = create<ChannelState>((set) => ({
         ...prevState.currentChannel,
         _id: "",
       },
+    })),
+  actionMessage: null,
+  setActionMessage: (message: ActionForMessage | null) =>
+    set((prevState) => ({
+      ...prevState,
+      actionMessage: message,
     })),
 }));
