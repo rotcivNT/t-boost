@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_UPLOAD_API_BASE_URL + "/v1/api/upload";
+const baseURL = process.env.NEXT_PUBLIC_API_UPLOAD_BASE_URL + "/v1/api/uploads";
 export const uploadAPI = {
   uploadFile: (formData: FormData) => {
     return fetch(baseURL, {

@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import ChannelContentHeader from "./header/ChannelContentHeader";
 import MessageContainer from "./messages/MessageContainer";
+import { ChannelProps } from "@/types";
 
 interface IProps {
   cid: string;
@@ -37,17 +38,30 @@ function ChannelContent({ cid }: IProps) {
       }
     };
 
+    const handleAddBookmark = (data: ChannelProps) => {
+      if (data) {
+        setPartialDataChannel({
+          bookmarkFolders: data.bookmarkFolders,
+          bookmarks: data.bookmarks,
+        });
+      }
+    };
+
     if (!isLoading && !error) {
       setCurrentChannel(channel);
 
-      if (channel) {
-        channelEvent = pusher.subscribe(channel._id);
+      if (channel && channel?._id) {
+        channelEvent = pusher.subscribe(channel?._id);
         channelEvent.bind("new-member-joined", handleChangeMembership);
+        channelEvent.bind("remove-member", handleChangeMembership);
+        channelEvent.bind("add-bookmark", handleAddBookmark);
       }
     }
     return () => {
       channelEvent.unsubscribe();
       channelEvent.unbind("new-member-joined", handleChangeMembership);
+      channelEvent.unbind("remove-member", handleChangeMembership);
+      channelEvent.unbind("add-bookmark", handleAddBookmark);
     };
   }, [isLoading, channel]);
 

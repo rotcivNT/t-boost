@@ -111,6 +111,7 @@ export const AddChannelModal = () => {
     startTransition(async () => {
       try {
         const channel = await createChannel(payload);
+        console.log(payload, channel);
         mutate(
           `?workspaceID=${channel.workspaceID}&creatorID=${channel.creatorID}`
         );

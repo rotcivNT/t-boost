@@ -19,7 +19,7 @@ function PreviewList({ files, setFiles }: IProps) {
     (state) => state.removeSpecificFile
   );
   return (
-    <div className="py-[10px] px-3 flex gap-3 flex-wrap">
+    <div className="flex gap-3 flex-wrap">
       {files.map((file, index) => {
         const type = detectTypeOfPreview(file);
         return (

@@ -1,0 +1,17 @@
+/* Customize get stream */
+.str-video__video-preview-container {
+  @apply !w-[600px];
+}
+
+.str-video {
+  @apply h-screen flex flex-col items-center justify-center bg-black;
+}
+
+.str-video__speaker-layout--variant-left .str-video__participant-view,
+.str-video__speaker-layout--variant-right .str-video__participant-view {
+  @apply max-w-7xl;
+}
+
+.str-video__speaker-layout__wrapper {
+  @apply h-full;
+}

@@ -1,0 +1,16 @@
+#message-list {
+
+    &::-webkit-scrollbar {
+     width: 0.5em;
+     height: 0.5em;
+    }
+  
+    &::-webkit-scrollbar-thumb {
+     background-color: rgba(255,255,255,.1);
+     border-radius: 3px;
+  
+     &:hover {
+      background: rgba(255,255,255,.2);
+     }
+    }
+  }

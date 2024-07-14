@@ -17,7 +17,10 @@ function SidebarItem({ icon, title }: IProps) {
   return (
     <Link
       href={`/workspace/${orgId}/${title.toLowerCase()}`}
-      className="flex flex-col items-center gap-[2px]"
+      className={cn(
+        "flex flex-col items-center gap-[2px] w-12",
+        "py-1 lg:py-0"
+      )}
     >
       <Button
         variant="icon"
@@ -30,7 +33,9 @@ function SidebarItem({ icon, title }: IProps) {
       >
         {icon}
       </Button>
-      <span className="text-[11px] text-[#F8F8F8]">{title}</span>
+      <span className={cn("text-[11px] text-[#F8F8F8]", "hidden lg:block")}>
+        {title}
+      </span>
     </Link>
   );
 }

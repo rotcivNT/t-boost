@@ -8,8 +8,8 @@ import { MessageItemProps } from "@/types";
 import { EmojiClickData, Theme } from "emoji-picker-react";
 import { Smile } from "lucide-react";
 import dynamic from "next/dynamic";
-import { RefObject, useState } from "react";
-import FowardButton from "./FowardButton";
+import { RefObject, useMemo, useState } from "react";
+import FowardButton from "./ForwardButton";
 import MoreActionButton from "./MoreActionButton";
 const Picker = dynamic(
   () => {
@@ -37,6 +37,9 @@ function MessageItemAction({
     channel: state.currentChannel,
     updateMessageLocal: state.updateMessage,
   }));
+  const clusterId = useMemo(() => {
+    return (message.createdAt as string).split("T")[0];
+  }, [message.createdAt]);
   const [showReactions, setShowReactions] = useState(false);
   const iconStyles = {
     size: 20,
@@ -59,7 +62,7 @@ function MessageItemAction({
           count: 1,
         });
       }
-      updateMessageLocal(message._id, "reactions", updatedReactions);
+      updateMessageLocal(message._id, clusterId, "reactions", updatedReactions);
       setShowReactions(false);
 
       const payload: UpdateMessageProps = {
@@ -67,6 +70,7 @@ function MessageItemAction({
         reactions: updatedReactions,
         socketId: pusher.connection.socket_id,
         channelId: channel._id,
+        sender: message.sender,
       };
 
       await updateMessage(payload);
@@ -81,13 +85,14 @@ function MessageItemAction({
         _id: message._id,
         channelId: channel._id,
         socketId: pusher.connection.socket_id,
+        sender: message.sender,
       };
       if (isRecall) {
         payload.isRecall = true;
-        updateMessageLocal(message._id, "isRecall", true);
+        updateMessageLocal(message._id, clusterId, "isRecall", true);
       } else {
         payload.isDelete = true;
-        updateMessageLocal(message._id, "isDelete", true);
+        updateMessageLocal(message._id, clusterId, "isDelete", true);
       }
       await updateMessage(payload);
     } catch (e) {
@@ -109,6 +114,7 @@ function MessageItemAction({
         container={wrapperRef}
         isOpen={isOpenDropdown}
         setIsOpen={setIsOpenDropdown}
+        message={message}
       />
       <div className="absolute top-0 right-full">
         <Picker

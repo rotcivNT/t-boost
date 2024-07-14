@@ -1,3 +1,5 @@
+import { MessageType } from "@/app/apis/api-payload";
+import { uploadAPI } from "@/app/apis/uploadAPI";
 import { deleteFile } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Button } from "@/components/ui/button";
@@ -5,16 +7,15 @@ import { pusher } from "@/configs/pusher";
 import { cn } from "@/lib/utils";
 import { FileData, MessageItemProps } from "@/types";
 import { CloudDownload, Trash } from "lucide-react";
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import FowardButton from "../message-item-action/FowardButton";
+import ForwardButton from "../message-item-action/ForwardButton";
 import EmojiWrapper from "./EmojiWrapper";
 import FileMessage from "./FileMessage";
 import ImageMessage from "./ImageMessage";
+import { LinkMessage } from "./LinkMessage";
 import TextMessage from "./TextMessage";
 import VideoMessage from "./VideoMessage";
 import FileViewerWrapper from "./file-viewer/FileViewerWrapper";
-import { uploadAPI } from "@/app/apis/uploadAPI";
 
 interface IProps {
   message: MessageItemProps;
@@ -80,13 +81,13 @@ function MessageItemContent({ message }: IProps) {
         pusher.connection.socket_id,
         channel._id
       );
-      console.log(res);
 
       if (res?._id) {
+        const clusterId = (message.createdAt as string).split("T")[0];
         if (newFiles.length === 0) {
-          updateMessageLocal(message._id, "isDelete", true);
+          updateMessageLocal(message._id, clusterId, "isDelete", true);
         }
-        updateMessageLocal(message._id, "files", newFiles);
+        updateMessageLocal(message._id, clusterId, "files", newFiles);
         setActiveIndex(-1);
       }
     } catch (e) {
@@ -116,7 +117,11 @@ function MessageItemContent({ message }: IProps) {
     </span>
   ) : (
     <div>
-      <TextMessage content={message.content} />
+      {message.type === MessageType.TEXT ? (
+        <TextMessage content={message.content} />
+      ) : (
+        <LinkMessage content={message.content} metadata={message.metadata} />
+      )}
       <div className="flex flex-wrap relative">
         {message.files?.map((file, index) => (
           <div
@@ -146,7 +151,7 @@ function MessageItemContent({ message }: IProps) {
               >
                 <CloudDownload color="#ffffffb3" size={18} />
               </Button>
-              <FowardButton message={message} />
+              <ForwardButton message={message} />
               <Button
                 onClick={() => onDeleteFile(file.url)}
                 variant="icon"

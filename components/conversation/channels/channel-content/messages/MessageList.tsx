@@ -2,15 +2,15 @@
 "use client";
 import { messageAPI } from "@/app/apis/messageAPI";
 import { useChannelStore } from "@/app/store/channel.store";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { pusher } from "@/configs/pusher";
 import { MessageCluster, MessageItemProps } from "@/types";
 import { Loader2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import {
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   useTransition,
@@ -19,11 +19,20 @@ import useSWR from "swr";
 import MessageItemStatus from "./message-item-status/MessageItemStatus";
 import DayDivider from "./message-item/DayDivider";
 import MessageItem from "./message-item/MessageItem";
+import "./styles.scss";
+import {
+  isAtBottom,
+  isElementInViewport,
+  scrollElementToBottom,
+} from "@/app/helpers";
 
 function MessageList() {
   const channel = useChannelStore((state) => state.currentChannel);
-  const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
+  const [queryUrl, setQueryUrl] = useState<string>(
+    `?receiverId=${channel._id}`
+  );
+  const currentChannelId = usePathname().split("/C/")[1];
   const {
     isSendingNewMessage,
     setIsSendingNewMessage,
@@ -37,37 +46,67 @@ function MessageList() {
     setMessages: state.setMessages,
     updateMessageByUniqueId: state.updateMessageByUniqueId,
   }));
-  const queryURL = useMemo(() => {
-    if (!channel) return "";
-    const params = new URLSearchParams();
-    params.set("channelId", channel._id);
-    params.set("page", page.toString());
-    return `?${params.toString()}`;
-  }, [channel, page]);
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatListRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, any>>({});
-  const containerRef = useRef<HTMLDivElement>(null);
   const [scrollBottom, setScrollBottom] = useState(false);
+  const [jumpTo, setJumpTo] = useState("");
   const [scrollToKey, setScrollToKey] = useState<string>("");
   const [isLoadMoreMsg, setIsLoadMoreMsg] = useState(false);
   const { data, error, isLoading } = useSWR(
-    queryURL,
-    messageAPI.getMessagesList
+    channel._id ? queryUrl : null,
+    messageAPI.getMessagesList,
+    {
+      revalidateIfStale: false,
+      keepPreviousData: true,
+      revalidateOnFocus: false,
+    }
   );
   console.log(data);
   const loadMoreMessages = () => {
     startTransition(async () => {
-      setPage((prev) => prev + 1);
+      const firstCluster: MessageCluster = messages.entries().next().value[1];
+
+      setQueryUrl(
+        `?receiverId=${channel._id}&beforeId=${firstCluster.messages[0]._id}`
+      );
     });
   };
 
   const onScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
+      if (channel._id !== currentChannelId) return;
       const { scrollTop } = e.target as HTMLDivElement;
-      if (scrollTop <= 0 && !isPending && data && data[0]) {
-        setIsLoadMoreMsg(true);
-        loadMoreMessages();
+
+      if (scrollTop <= 0 && !isPending) {
+        if (!(queryUrl.includes("beforeId") && data && data.length === 0)) {
+          setIsLoadMoreMsg(true);
+          loadMoreMessages();
+        }
+      }
+      const lastCluster = Array.from(messages.values()).pop();
+      if (!lastCluster) return;
+      const latestLength = lastCluster?.messages.length;
+      const key =
+        lastCluster.messages[
+          latestLength < 8 ? latestLength - 1 : latestLength - 8
+        ]?._id;
+      const messagesOfLastCluster = lastCluster.messages;
+      const idOfMessagesOfLastCluster =
+        messagesOfLastCluster[messagesOfLastCluster.length - 1]._id;
+
+      if (
+        key &&
+        jumpTo &&
+        isElementInViewport(
+          itemRefs.current[key],
+          chatListRef.current as HTMLDivElement
+        )
+      ) {
+        setQueryUrl(
+          `?receiverId=${channel._id}&afterId=${idOfMessagesOfLastCluster}`
+        );
+        setJumpTo("");
       }
     },
     [loadMoreMessages, isPending]
@@ -76,12 +115,36 @@ function MessageList() {
   useLayoutEffect(() => {
     if (
       scrollToKey === undefined ||
-      (containerRef.current as HTMLDivElement).scrollTop !== 0
+      (chatListRef.current as HTMLDivElement).scrollTop !== 0
     )
       return;
     itemRefs.current[scrollToKey] &&
       itemRefs.current[scrollToKey].scrollIntoView();
   }, [scrollToKey]);
+
+  useLayoutEffect(() => {
+    setMessages([], true);
+  }, []);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      if (jumpTo) {
+        setMessages([...data], true);
+        setScrollToKey(jumpTo);
+      } else {
+        if (isLoadMoreMsg) {
+          setIsLoadMoreMsg(false);
+          const firstCluster: MessageCluster = messages.entries().next()
+            .value[1];
+          setScrollToKey(firstCluster.messages[0]._id);
+        }
+
+        setMessages([...data], false);
+        messages.size === 0 && setScrollBottom(true);
+      }
+    } else setIsLoadMoreMsg(false);
+  }, [data]);
+
   useEffect(() => {
     let channelEvent: any = {
       unsubscribe: () => null,
@@ -92,6 +155,10 @@ function MessageList() {
         _id: new Date(message.createdAt as string).toISOString().split("T")[0],
         messages: [message],
       };
+
+      if (!isAtBottom(chatListRef)) {
+        setScrollBottom(false);
+      }
       setMessages(cluster);
     };
     const handleUpdateMessage = (message: MessageItemProps) => {
@@ -100,76 +167,82 @@ function MessageList() {
         .split("T")[0];
       updateMessageByUniqueId(message, clusterId, false);
     };
-    if (!isLoading) {
-      if (data && data.length > 0) {
-        if (page === 1) {
-          setMessages(data, true);
-          setScrollBottom(true);
-        } else {
-          setScrollToKey(messages[0]._id);
-          setMessages(data);
-        }
-      } else setIsLoadMoreMsg(false);
-      if (channel?._id) {
-        channelEvent = pusher.subscribe(channel._id);
-        channelEvent.bind("new-message", handleAddNewMessage);
-        channelEvent.bind("update-message", handleUpdateMessage);
-      }
+    if (channel?._id) {
+      channelEvent = pusher.subscribe(channel._id);
+      channelEvent.bind("new-message", handleAddNewMessage);
+      channelEvent.bind("update-message", handleUpdateMessage);
     }
+
     return () => {
       channelEvent.unsubscribe();
       channelEvent.unbind("new-message", handleAddNewMessage);
       channelEvent.unbind("update-message", handleUpdateMessage);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, data]);
+  }, [channel]);
 
   useEffect(() => {
-    if (chatEndRef.current && isSendingNewMessage) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-      setIsSendingNewMessage(false);
+    if (scrollBottom && !scrollToKey) {
+      scrollElementToBottom(chatListRef);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSendingNewMessage]);
+  }, [scrollBottom, messages]);
 
   useEffect(() => {
-    if (scrollBottom)
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [scrollBottom]);
+    setQueryUrl(`?receiverId=${channel._id}`);
+  }, [channel]);
 
   return (
-    <ScrollArea
-      ref={containerRef}
-      onScroll={onScroll}
-      className="dropzone h-[calc(100%-156px)] mt-5 [&>div:nth-child(2)>div:first-child]:h-full"
-    >
+    <div className="dropzone h-[calc(100%-156px)] pt-10 relative">
       {isLoadMoreMsg && (
-        <div className="flex justify-center mb-5">
+        <div className="flex justify-center absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Loader2 className="animate-spin" size={20} />
         </div>
       )}
-      <div className="flex h-full flex-col justify-end">
-        {messages.map((item) => (
-          <div key={item._id}>
-            <DayDivider
-              ref={(el: HTMLDivElement) => {
-                itemRefs.current[item._id] = el;
-                return itemRefs.current[item._id];
-              }}
-              createdAt={item._id}
-            />
-            {item.messages.map((item: MessageItemProps) =>
-              !item?.isSending ? (
-                <MessageItem key={item._id} message={item} />
-              ) : (
-                <MessageItemStatus key={item.uniqueId} message={item} />
-              )
-            )}
-          </div>
-        ))}
+      <div
+        ref={chatListRef}
+        onScroll={onScroll}
+        id="message-list"
+        className="h-full overflow-y-auto"
+      >
+        {messages.size > 0 &&
+          channel._id === currentChannelId &&
+          Array.from(messages).map(([clusterId, clusterMessages]) => (
+            <Fragment key={clusterId}>
+              <DayDivider
+                ref={(el: HTMLDivElement) => {
+                  itemRefs.current[clusterId] = el;
+                  return itemRefs.current[clusterId];
+                }}
+                createdAt={clusterId}
+              />
+              {clusterMessages.messages.map((item: MessageItemProps) =>
+                !item?.isSending ? (
+                  <MessageItem
+                    ref={(el: HTMLDivElement) => {
+                      itemRefs.current[item._id] = el;
+                      return itemRefs.current[item._id];
+                    }}
+                    key={item._id}
+                    message={item}
+                  />
+                ) : (
+                  <MessageItemStatus key={item.uniqueId} message={item} />
+                )
+              )}
+            </Fragment>
+          ))}
       </div>
-      <div ref={chatEndRef} />
-    </ScrollArea>
+      {/* <div ref={chatEndRef} /> */}
+      {/* <div
+        onClick={() => {
+          setJumpTo("666afbaad35a11a17c2b0dd6");
+          setQueryUrl(
+            `?receiverId=${channel._id}&aroundId=666afbaad35a11a17c2b0dd6`
+          );
+        }}
+      >
+        CLICK
+      </div> */}
+    </div>
   );
 }
 

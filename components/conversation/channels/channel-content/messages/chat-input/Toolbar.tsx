@@ -86,20 +86,18 @@ function Toolbar({ editor }: IProps) {
         return (
           <TooltipProvider key={key}>
             <Tooltip>
-              <TooltipTrigger>
-                <ToggleGroupItem
-                  data-state={editor?.isActive(key) ? "on" : "off"}
-                  key={key}
-                  value={key}
-                  className={toogleItemStyles}
-                  onClick={() => onToggleMark(key)}
-                >
-                  {value.icon}
-                </ToggleGroupItem>
+              <ToggleGroupItem
+                data-state={editor?.isActive(key) ? "on" : "off"}
+                key={key}
+                value={key}
+                className={toogleItemStyles}
+                onClick={() => onToggleMark(key)}
+              >
+                <TooltipTrigger asChild>{value.icon}</TooltipTrigger>
                 <TooltipContent>
                   <p>{value.title}</p>
                 </TooltipContent>
-              </TooltipTrigger>
+              </ToggleGroupItem>
             </Tooltip>
           </TooltipProvider>
         );
@@ -109,20 +107,18 @@ function Toolbar({ editor }: IProps) {
         return (
           <TooltipProvider key={key}>
             <Tooltip>
-              <TooltipTrigger>
-                <ToggleGroupItem
-                  data-state={editor?.isActive(key) ? "on" : "off"}
-                  key={key}
-                  value={key}
-                  className={toogleItemStyles}
-                  onClick={() => onToggleList(key)}
-                >
-                  {value.icon}
-                </ToggleGroupItem>
+              <ToggleGroupItem
+                data-state={editor?.isActive(key) ? "on" : "off"}
+                key={key}
+                value={key}
+                className={toogleItemStyles}
+                onClick={() => onToggleList(key)}
+              >
+                <TooltipTrigger asChild>{value.icon}</TooltipTrigger>
                 <TooltipContent>
                   <p>{value.title}</p>
                 </TooltipContent>
-              </TooltipTrigger>
+              </ToggleGroupItem>
             </Tooltip>
           </TooltipProvider>
         );
@@ -132,20 +128,18 @@ function Toolbar({ editor }: IProps) {
         return (
           <TooltipProvider key={key}>
             <Tooltip>
-              <TooltipTrigger>
-                <ToggleGroupItem
-                  data-state={editor?.isActive(key) ? "on" : "off"}
-                  key={key}
-                  value={key}
-                  className={toogleItemStyles}
-                  onClick={() => onToggleCode(key)}
-                >
-                  {value.icon}
-                </ToggleGroupItem>
+              <ToggleGroupItem
+                data-state={editor?.isActive(key) ? "on" : "off"}
+                key={key}
+                value={key}
+                className={toogleItemStyles}
+                onClick={() => onToggleCode(key)}
+              >
+                <TooltipTrigger asChild>{value.icon}</TooltipTrigger>
                 <TooltipContent>
                   <p>{value.title}</p>
                 </TooltipContent>
-              </TooltipTrigger>
+              </ToggleGroupItem>
             </Tooltip>
           </TooltipProvider>
         );

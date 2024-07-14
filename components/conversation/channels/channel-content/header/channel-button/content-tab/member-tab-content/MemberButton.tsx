@@ -1,3 +1,6 @@
+import { RemoveUserProps } from "@/app/apis/api-payload";
+import { removeUser } from "@/app/services/action";
+import { useChannelStore } from "@/app/store/channel.store";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 
@@ -6,6 +9,8 @@ interface IProps {
   rightIcon?: any;
   name: string;
   userId?: string;
+  creatorId?: string;
+  channelId?: string;
 }
 
 export const MemberButtonLoading = () => {
@@ -17,8 +22,35 @@ export const MemberButtonLoading = () => {
   );
 };
 
-function MemberButton({ leftIcon, rightIcon, name, userId }: IProps) {
+function MemberButton({
+  leftIcon,
+  rightIcon,
+  name,
+  userId,
+  channelId,
+  creatorId,
+}: IProps) {
   const { user } = useUser();
+  const setPartialDataChannel = useChannelStore(
+    (state) => state.setPartialDataChannel
+  );
+  const onRemoveUser = async () => {
+    const payload: RemoveUserProps = {
+      channelId: channelId as string,
+      senderId: user?.id as string,
+      deleteId: userId as string,
+    };
+    try {
+      const res = await removeUser(payload);
+      if (res?.code === 1) {
+        setPartialDataChannel({
+          members: res.data.members,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center hover:bg-dark-primary px-7 cursor-pointer py-3">
@@ -31,8 +63,12 @@ function MemberButton({ leftIcon, rightIcon, name, userId }: IProps) {
         }`}</p>
         {rightIcon}
       </div>
-      {userId && user?.id !== userId && (
-        <Button className="text-[#1D9BD1]" variant="link">
+      {userId && user?.id !== userId && user?.id === creatorId && (
+        <Button
+          onClick={onRemoveUser}
+          className="text-[#1D9BD1]"
+          variant="link"
+        >
           Remove
         </Button>
       )}

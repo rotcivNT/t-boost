@@ -1,3 +1,4 @@
+import { BookmarkData } from "@/components/conversation/channels/channel-content/header/bookmark/dialog-content/BookmarkDialogContent";
 import { ChannelProps, FileData, MessageItemProps } from "@/types";
 
 export type sendInvitationPayload = {
@@ -6,13 +7,8 @@ export type sendInvitationPayload = {
   senderEmail: string;
   receiverEmail: string;
   role: string;
-};
-
-export interface Sender {
   senderId: string;
-  fullName: string;
-  imageUrl: string;
-}
+};
 
 interface Reaction {
   emoji: string;
@@ -21,9 +17,11 @@ interface Reaction {
 }
 
 export interface LinkMetadata {
-  thumbnail: string;
-  title: string;
-  subtitle: string;
+  url: string;
+  favicon: string;
+  domain: string;
+  sitename: string;
+  image: string;
   description: string;
 }
 
@@ -33,6 +31,24 @@ export enum MessageType {
   FILE = "file",
   IMAGE = "image",
   LINK = "link",
+  SYSTEM = "system",
+  MEETING = "meeting",
+}
+
+export enum SystemMessageContent {
+  MEMBER_JOINED = "member.joined",
+  MEMBER_LEFT = "member.left",
+  MEMBER_REMOVED = "member.removed",
+  MEMBER_INVITED = "member.invited",
+  MEMBER_UPDATED = "member.updated",
+  CHANNEL_UPDATED = "channel.updated",
+  CHANNEL_REMOVED = "channel.removed",
+}
+
+export interface Sender {
+  clerkUserId: string;
+  fullName: string;
+  imageUrl: string;
 }
 
 export interface SendMessageProps {
@@ -40,9 +56,11 @@ export interface SendMessageProps {
 
   socketId: string;
 
+  senderId: string;
+
   sender: Sender;
 
-  fowarder?: Sender;
+  fowarder?: string;
 
   type: MessageType;
 
@@ -88,4 +106,41 @@ export interface DeleteFileInMessageProps {
 
 export interface UpdateChannelProps extends Partial<ChannelProps> {
   socketId?: string;
+}
+
+export interface RemoveUserProps {
+  channelId: string;
+  deleteId: string;
+  senderId: string;
+}
+
+export interface NewMeetingRequestProps {
+  channelId: string;
+  meetingLink: string;
+  senderId: string;
+  sender: Sender;
+}
+
+export interface CreateBookmarkProps {
+  channelId: string;
+  isFolder: boolean;
+  payload:
+    | {
+        name: string;
+        previousName?: string;
+      }
+    | BookmarkData;
+}
+
+export interface DeleteBookmarkProps {
+  channelId: string;
+  isFolder: boolean;
+  bookmarkName: string;
+  parentName?: string;
+}
+
+export interface UpdateMeetingProps {
+  meetingLink: string;
+  isDelete: boolean;
+  sender: Sender;
 }
