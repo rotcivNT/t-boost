@@ -1,50 +1,60 @@
-import axios from "axios";
 import {
   DeleteFileInMessageProps,
   NewMeetingRequestProps,
   UpdateMeetingProps,
   UpdateMessageProps,
 } from "./api-payload";
-import { QueryMessageProps } from "@/types";
+import {
+  MessageItemResponse,
+  MessageListResponse,
+} from "./api-response/message.response";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL + "/v1/api/messages";
 export const messageAPI = {
-  sendMessage: (formData: any) => {
-    return fetch(baseURL, {
+  sendMessage: async (formData: any): Promise<MessageItemResponse> => {
+    const res = await fetch(baseURL, {
       method: "POST",
       body: formData,
     });
-  },
-  getMessagesList: async (queryUrl: string) => {
-    const res = await fetch(baseURL + queryUrl);
     return res.json();
   },
-  updateMessage: (message: UpdateMessageProps) => {
-    return fetch(baseURL + "/update-message", {
+  getMessagesList: async (queryUrl: string): Promise<MessageListResponse> => {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + queryUrl);
+    return res.json();
+  },
+  updateMessage: async (
+    message: UpdateMessageProps
+  ): Promise<MessageItemResponse> => {
+    const res = await fetch(baseURL + "/update-message", {
       method: "POST",
       body: JSON.stringify(message),
       headers: {
         "Content-Type": "application/json",
       },
     });
+    return res.json();
   },
-  forwardMessage: (payload: any) => {
-    return fetch(baseURL + "/forward-message", {
+  forwardMessage: async (payload: any): Promise<MessageItemResponse> => {
+    const res = await fetch(baseURL + "/forward-message", {
       method: "POST",
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
       },
     });
+    return res.json();
   },
-  deleteFile: (payload: DeleteFileInMessageProps) => {
-    return fetch(baseURL + "/delete-file", {
+  deleteFile: async (
+    payload: DeleteFileInMessageProps
+  ): Promise<MessageItemResponse> => {
+    const res = await fetch(baseURL + "/delete-file", {
       method: "POST",
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
       },
     });
+    return res.json();
   },
   newMeeting: (payload: NewMeetingRequestProps) => {
     return fetch(`${baseURL}/new-meeting`, {

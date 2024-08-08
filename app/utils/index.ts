@@ -110,10 +110,23 @@ export const formatedMessageTime = (isoString: string) => {
 };
 
 export const convertDateToTextName = (date: Date): string => {
-  const nameOfWeekday = date.toLocaleString("en-GB", { weekday: "long" });
-  const nameOfMonth = date.toLocaleString("en-GB", { month: "long" });
+  const nameOfWeekday = date.toLocaleString("en-US", { weekday: "long" });
+  const nameOfMonth = date.toLocaleString("en-US", { month: "long" });
   const day = date.getDate();
   const dayPostfix =
     day === 1 ? "st" : day === 2 ? "nd" : day === 3 ? "rd" : "th";
   return `${nameOfWeekday}, ${nameOfMonth} ${day}${dayPostfix}`;
+};
+
+export const formatDateFileUpload = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  };
+  return date.toLocaleDateString("en-US", options);
 };

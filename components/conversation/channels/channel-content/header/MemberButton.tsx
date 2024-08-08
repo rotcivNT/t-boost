@@ -8,31 +8,55 @@ import {
 } from "@/components/ui/tooltip";
 import Image from "next/image";
 import ChannelDetails from "./channel-button/ChannelDetails";
+import useSWR from "swr";
+import { getUser } from "@/app/services/auth.action";
+import { FindBy, GetUserPayload } from "@/app/apis/api-payload/auth.payload";
+import { cn } from "@/lib/utils";
+import { ApiStatus } from "@/app/utils/api.response";
+
+const displayMemberCount = 5;
 
 function MemberButton() {
   const channel = useChannelStore().currentChannel;
+  const payload: GetUserPayload = {
+    field: channel.members
+      ?.slice(0, displayMemberCount - 1)
+      .map((member) => member.userID),
+    findBy: FindBy.CLERK_USER_ID,
+  };
+  const { data: membersData } = useSWR(["get-user", payload], ([_, payload]) =>
+    getUser(payload)
+  );
+
   return (
     <Dialog>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <DialogTrigger className="flex items-center justify-center h-7 rounded-[6px] border border-[#797c814d] p-1 hover:bg-[rgba(255,255,255,0.03)]">
-              <Image
-                src="https://ca.slack-edge.com/T06FW3SK3MH-U06G8RS0317-2d5da6c4fb79-48"
-                alt=""
-                width={20}
-                height={20}
-                className="rounded-[4px] relative [&+img]:-left-2 z-10"
-              />
-              <Image
-                src="https://ca.slack-edge.com/T06FW3SK3MH-U06MXDLPTSR-dc219b4bc688-48"
-                alt=""
-                width={20}
-                height={20}
-                className="rounded-[4px] relative"
-              />
-              <span className="text-[13px] text-[#E8E8E8B3] font-[500] pl-[6px] pr-[2px]">
-                1
+              {membersData &&
+                membersData.map((member, index) => (
+                  <Image
+                    key={member._id}
+                    src={member.imageUrl}
+                    alt={member.fullName}
+                    width={20}
+                    height={20}
+                    className="rounded-[4px] size-5 relative [&+img]:-left-2 object-cover"
+                    style={{
+                      zIndex: displayMemberCount - index,
+                    }}
+                  />
+                ))}
+              <span
+                className={cn(
+                  "text-[13px] text-[#E8E8E8B3] font-[500] pr-[2px]",
+                  {
+                    "pl-[6px]": channel.members?.length === 1,
+                  }
+                )}
+              >
+                {channel.members?.length}
               </span>
             </DialogTrigger>
           </TooltipTrigger>

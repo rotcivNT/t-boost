@@ -4,6 +4,7 @@ import { Be_Vietnam_Pro } from "next/font/google";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import "./globals.css";
@@ -31,13 +32,17 @@ export default function RootLayout({
         <body className={beVietNamPro.className}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
             disableTransitionOnChange
           >
             {children}
             <SpeedInsights />
             <Toaster />
+
+            <SonnerToaster
+              className="bg-dark-primary text-lg"
+              position="bottom-left"
+            />
           </ThemeProvider>
         </body>
       </html>

@@ -5,6 +5,7 @@ import {
   Files,
   Headset,
   Home,
+  ListTodo,
   MessageCircle,
   Play,
   Tv,
@@ -28,18 +29,6 @@ const sidebarData = [
     icon: <MessageCircle {...iconStyles} />,
   },
   {
-    title: "Activity",
-    icon: <Bell {...iconStyles} />,
-  },
-  {
-    title: "Later",
-    icon: <Bookmark {...iconStyles} />,
-  },
-  {
-    title: "Automations",
-    icon: <Play {...iconStyles} />,
-  },
-  {
     title: "Huddles",
     icon: <Headset {...iconStyles} />,
   },
@@ -54,6 +43,10 @@ const sidebarData = [
   {
     title: "People",
     icon: <ContactRound {...iconStyles} />,
+  },
+  {
+    title: "Tasks",
+    icon: <ListTodo {...iconStyles} />,
   },
 ];
 

@@ -1,6 +1,4 @@
-import { BookmarkData } from "@/components/conversation/channels/channel-content/header/bookmark/dialog-content/BookmarkDialogContent";
 import { RefObject } from "react";
-import { DeleteBookmarkProps } from "../apis/api-payload";
 
 export const isAtBottom = (ref: RefObject<any>) => {
   return (

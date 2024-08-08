@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ChannelIcon } from "@/assets/images/ChannelIcon";
 import useSWR from "swr";
 import ConversationSidebarButton from "../ConversationSidebarButton";
@@ -15,7 +16,7 @@ interface IProps {
   userId?: string;
 }
 
-const ChannelLoading = () => (
+export const ChannelLoading = () => (
   <div className="animate-pulse flex items-center px-3 gap-2 h-7 w-full rounded-[5px]">
     <div className="h-4 w-4 bg-[rgba(50,53,56,1)] rounded"></div>
     <div className="flex-1 h-4 bg-[rgba(50,53,56,1)] rounded"></div>
@@ -23,26 +24,25 @@ const ChannelLoading = () => (
 );
 
 function Channels({ type, workspaceId, userId }: IProps) {
-  const {
-    data: channels,
-    error,
-    isLoading,
-  } = useSWR(
+  const { data, isLoading } = useSWR(
     `?workspaceId=${workspaceId}&userId=${userId}`,
     getAllChannelsById
   );
-  const setChannels = useChannelStore((state) => state.setChannels);
+
+  const { setChannels, channels } = useChannelStore((state) => ({
+    setChannels: state.setChannels,
+    channels: state.channels,
+  }));
 
   useEffect(() => {
-    if (!isLoading && !error) {
-      setChannels(channels);
+    if (data) {
+      setChannels(data);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [data]);
 
   return (
     <ConversationSidebarItem title="Channels">
-      {isLoading || !channels ? (
+      {isLoading || !data ? (
         <>
           <ChannelLoading />
           <ChannelLoading />
@@ -57,7 +57,7 @@ function Channels({ type, workspaceId, userId }: IProps) {
           <ConversationSidebarButton
             key={channel._id}
             title={channel.name}
-            href={`/workspace/${workspaceId}/home/C/${channel._id}`}
+            href={`/workspace/${workspaceId}/home/${channel._id}`}
             icon={<ChannelIcon />}
           />
         ))

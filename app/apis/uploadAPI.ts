@@ -9,4 +9,10 @@ export const uploadAPI = {
     });
   },
   getImages: (url: string) => axios.get(`${baseURL}?url=${url}`),
+  onlyUploadFiles: (formData: FormData) => {
+    return fetch(`${baseURL}/only-upload-files`, {
+      method: "POST",
+      body: formData,
+    });
+  },
 };

@@ -1,32 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { channelAPI } from "@/app/apis/channelAPI";
+import { getChannelById } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Separator } from "@/components/ui/separator";
 import { pusher } from "@/configs/pusher";
+import { ChannelProps } from "@/types";
 import { useEffect } from "react";
 import useSWR from "swr";
 import ChannelContentHeader from "./header/ChannelContentHeader";
-import MessageContainer from "./messages/MessageContainer";
-import { ChannelProps } from "@/types";
+import ChannelMessageContainer from "../../../messages/ChannelMessageContainer";
+import { useMessageSharedStore } from "@/app/store/message-shared.store";
+import { ConversationApiKeys } from "@/app/apis/api-key/conversation-api.key";
 
 interface IProps {
   cid: string;
 }
 
 function ChannelContent({ cid }: IProps) {
-  const {
-    data: channel,
-    error,
-    isLoading,
-  } = useSWR(`/${cid}`, channelAPI.getChannelById);
-  const { setCurrentChannel, setPartialDataChannel, currentChannel } =
-    useChannelStore((state) => ({
+  const { data: channel, isLoading } = useSWR(
+    ConversationApiKeys.getChannelByIdKey(cid),
+    getChannelById
+  );
+  const { setCurrentChannel, setPartialDataChannel } = useChannelStore(
+    (state) => ({
       setCurrentChannel: state.setCurrentChannel,
       setPartialDataChannel: state.setPartialDataChannel,
-      currentChannel: state.currentChannel,
-    }));
-
+    })
+  );
+  const setQueryMessageUrl = useMessageSharedStore(
+    (state) => state.setQueryMessageUrl
+  );
   useEffect(() => {
     let channelEvent: any = {
       unsubscribe: () => null,
@@ -47,11 +50,11 @@ function ChannelContent({ cid }: IProps) {
       }
     };
 
-    if (!isLoading && !error) {
-      setCurrentChannel(channel);
-
-      if (channel && channel?._id) {
-        channelEvent = pusher.subscribe(channel?._id);
+    if (channel) {
+      setCurrentChannel(channel[0]);
+      setQueryMessageUrl(`?receiverId=${channel[0]._id}`);
+      if (channel && channel[0]._id) {
+        channelEvent = pusher.subscribe(channel[0]._id);
         channelEvent.bind("new-member-joined", handleChangeMembership);
         channelEvent.bind("remove-member", handleChangeMembership);
         channelEvent.bind("add-bookmark", handleAddBookmark);
@@ -70,7 +73,7 @@ function ChannelContent({ cid }: IProps) {
       <ChannelContentHeader />
       <Separator />
       <div className="flex-1 h-[calc(100%-126px)]">
-        <MessageContainer />
+        <ChannelMessageContainer />
       </div>
     </div>
   );

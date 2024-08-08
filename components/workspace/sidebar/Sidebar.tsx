@@ -14,7 +14,7 @@ function Sidebar() {
       <div
         className={cn(
           "pt-3 w-12 flex flex-col items-center h-full justify-between",
-          "lg:w-[70px]"
+          "lg:w-[76px]"
         )}
       >
         <div className="h-full overflow-hidden w-full">

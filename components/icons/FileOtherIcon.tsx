@@ -1,6 +1,6 @@
 export const FileOtherIcon = ({
-  width = 42,
-  height = 52,
+  width = 36,
+  height = 36,
 }: {
   width?: number;
   height?: number;
