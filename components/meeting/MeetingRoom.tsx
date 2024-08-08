@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import {
   CallControls,
@@ -6,6 +5,7 @@ import {
   CallingState,
   PaginatedGridLayout,
   SpeakerLayout,
+  StreamVideoEvent,
   useCall,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
@@ -88,30 +88,7 @@ const MeetingRoom = () => {
       }
     };
     handleJoinCall();
-  }, []);
-
-  useEffect(() => {
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      if (call && call?.state.participantCount === 1) {
-        const payload: UpdateMeetingProps = {
-          meetingLink: `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`,
-          sender: {
-            clerkUserId: call.state.createdBy?.id as string,
-            imageUrl: call.state.createdBy?.image as string,
-            fullName: call.state.createdBy?.name as string,
-          },
-          isDelete: true,
-        };
-        updateMeeting(payload);
-        call.endCall();
-      }
-      event.preventDefault();
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+  }, [call, isJoinFromLink]);
 
   if (callingState !== CallingState.JOINED) return <Loader />;
   return (

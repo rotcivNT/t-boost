@@ -12,10 +12,7 @@ function Conversation() {
   const { mutate } = useSWRConfig();
   useEffect(() => {
     if (!user?.id) return;
-    const handleOutGroup = (data: any) => {
-      // Send to user who was deleted
-      console.log("REMOVED DATA");
-
+    const handleOutGroup = () => {
       mutate(`?workspaceId=${organization?.id}&userId=${user?.id}`);
     };
     const userEvent = pusher.subscribe(user?.id as string);

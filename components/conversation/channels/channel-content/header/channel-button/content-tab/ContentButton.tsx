@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { ChannelProps } from "@/types";
 import DialogContentTab from "./DialogContentTab";
-import { cn } from "@/lib/utils";
 import styles from "./styles.module.scss";
-import { useState } from "react";
-import { updateChannel, updateMessage } from "@/app/services/action";
 
 interface IProps {
   channel: ChannelProps;

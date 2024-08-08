@@ -17,7 +17,7 @@ export default function WorkspaceLayout({
       <Header />
       <main className="flex">
         <Sidebar />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-y-hidden">{children}</div>
       </main>
     </div>
   );

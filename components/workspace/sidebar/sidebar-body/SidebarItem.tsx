@@ -33,7 +33,7 @@ function SidebarItem({ icon, title }: IProps) {
       >
         {icon}
       </Button>
-      <span className={cn("text-[11px] text-[#F8F8F8]", "hidden lg:block")}>
+      <span className={cn("text-[11px] text-[#F8F8F8]", "hidden lg:!block")}>
         {title}
       </span>
     </Link>

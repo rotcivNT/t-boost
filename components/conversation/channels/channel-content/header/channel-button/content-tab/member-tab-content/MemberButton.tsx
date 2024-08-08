@@ -1,6 +1,7 @@
 import { RemoveUserProps } from "@/app/apis/api-payload";
-import { removeUser } from "@/app/services/action";
+import { removeMember } from "@/app/services/channel.action";
 import { useChannelStore } from "@/app/store/channel.store";
+import { ApiStatus } from "@/app/utils/api.response";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 
@@ -41,11 +42,9 @@ function MemberButton({
       deleteId: userId as string,
     };
     try {
-      const res = await removeUser(payload);
-      if (res?.code === 1) {
-        setPartialDataChannel({
-          members: res.data.members,
-        });
+      const res = await removeMember(payload);
+      if (res?.status === ApiStatus.OK) {
+        setPartialDataChannel({ members: res.data.members });
       }
     } catch (e) {
       console.log(e);

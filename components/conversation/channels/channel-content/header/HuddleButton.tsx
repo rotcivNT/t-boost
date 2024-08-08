@@ -1,6 +1,5 @@
 "use client";
 import { messageAPI } from "@/app/apis/messageAPI";
-import { useChannelStore } from "@/app/store/channel.store";
 import Loader from "@/components/loader/Loader";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -11,27 +10,23 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { iconStyles } from "@/components/workspace/sidebar/sidebar-body/SidebarList";
-import { ClerkProvider, useClerk, useUser } from "@clerk/nextjs";
-import {
-  Call,
-  StreamCallProvider,
-  StreamVideoClient,
-  useStreamVideoClient,
-} from "@stream-io/video-react-sdk";
+import { useUser } from "@clerk/nextjs";
+import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 
-import { createRoot } from "react-dom/client";
 import { Headset } from "lucide-react";
 import { useEffect, useState } from "react";
-import Meeting from "@/components/meeting/Meeting";
-import StreamVideoProvider from "@/providers/StreamClientProvider";
 const initialValues = {
   dateTime: new Date(),
   description: "",
   link: "",
 };
 
-function HuddleButton() {
-  const channel = useChannelStore((state) => state.currentChannel);
+interface IProps {
+  receiverId: string;
+  memberIds: string[];
+}
+
+function HuddleButton({ receiverId, memberIds }: IProps) {
   const [values, setValues] = useState(initialValues);
   const [callDetail, setCallDetail] = useState<Call>();
   const client = useStreamVideoClient();
@@ -60,13 +55,14 @@ function HuddleButton() {
       // }
       const id = crypto.randomUUID();
       const call = client.call("default", `${id}`);
+
       if (!call) throw new Error("Failed to create meeting");
       const startsAt =
         values.dateTime.toISOString() || new Date(Date.now()).toISOString();
       const description = values.description || "Instant Meeting";
-      const members = channel.members.map((member) => ({
-        role: member.userID === user.id ? "call_member" : "user",
-        user_id: member.userID,
+      const members = memberIds.map((memberId) => ({
+        role: memberId === user.id ? "call_member" : "user",
+        user_id: memberId,
       }));
       await call.getOrCreate({
         ring: true,
@@ -90,7 +86,7 @@ function HuddleButton() {
 
       if (!values.description) {
         await messageAPI.newMeeting({
-          channelId: channel._id,
+          channelId: receiverId,
           meetingLink: `${process.env.NEXT_PUBLIC_BASE_URL}/workspace/meeting/${call.id}`,
           senderId: user.id,
           sender: {
@@ -110,11 +106,10 @@ function HuddleButton() {
       if (event.data === "closeWindow") {
         newWindow.close();
         setNewWindow(null);
+      } else {
+        alert(event);
+        console.log(event);
       }
-    };
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      console.log(callDetail?.state.participants);
-      event.preventDefault();
     };
     if (newWindow) {
       newWindow.document.write(`
@@ -123,7 +118,7 @@ function HuddleButton() {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Embedded Iframe</title>
+            <title>TBoost Call</title>
         </head>
         <body style="margin: 0; overflow: hidden;">
             <iframe src="${process.env.NEXT_PUBLIC_BASE_URL}/workspace/meeting/${callDetail?.id}" frameborder="0" style="width: 100%; height: 100vh;"></iframe>
@@ -132,11 +127,9 @@ function HuddleButton() {
     `);
       newWindow.document.close();
       newWindow.addEventListener("message", handleMessage);
-      // newWindow.addEventListener("beforeunload", handleBeforeUnload);
     }
     return () => {
       newWindow?.removeEventListener("message", handleMessage);
-      // newWindow?.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [callDetail, newWindow]);
 

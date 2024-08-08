@@ -1,5 +1,6 @@
-import { BookmarkData } from "@/components/conversation/channels/channel-content/header/bookmark/dialog-content/BookmarkDialogContent";
+import { BookmarkData } from "@/components/bookmark/dialog-content/BookmarkDialogContent";
 import { ChannelProps, FileData, MessageItemProps } from "@/types";
+import { ConversationType } from "@/types/conversation.type";
 
 export type sendInvitationPayload = {
   workspaceId: string;
@@ -122,8 +123,9 @@ export interface NewMeetingRequestProps {
 }
 
 export interface CreateBookmarkProps {
-  channelId: string;
+  conversationId: string;
   isFolder: boolean;
+  type: ConversationType;
   payload:
     | {
         name: string;
@@ -133,10 +135,11 @@ export interface CreateBookmarkProps {
 }
 
 export interface DeleteBookmarkProps {
-  channelId: string;
+  conversationId: string;
   isFolder: boolean;
   bookmarkName: string;
   parentName?: string;
+  type: ConversationType;
 }
 
 export interface UpdateMeetingProps {

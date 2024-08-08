@@ -6,7 +6,13 @@ function Header() {
   return (
     <div className="flex h-header-height items-center justify-between px-4">
       <div className="flex-1">
-        <Image alt="Logo" src="/next.svg" width={150} height={28} />
+        <Image
+          alt="Logo"
+          src="/logo.png"
+          className="w-[150px] h-8 object-cover"
+          width={150}
+          height={28}
+        />
       </div>
       <div className="flex-[2]">
         <SearchInput />

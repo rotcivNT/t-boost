@@ -22,6 +22,9 @@ import { createChannel } from "@/app/services/action";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
+import { ApiStatus } from "@/app/utils/api.response";
+import { useToast } from "@/components/ui/use-toast";
+import { useChannelStore } from "@/app/store/channel.store";
 
 interface IProps {
   title: string;
@@ -86,9 +89,13 @@ export const AddChannelModal = () => {
   const { user } = useUser();
   const { organization } = useOrganization();
   const router = useRouter();
-  const { mutate } = useSWRConfig();
   const closeButtonRef = useRef<any>(null);
+  const { toast } = useToast();
 
+  const { clearOldChannelData, addChannel } = useChannelStore((state) => ({
+    clearOldChannelData: state.clearOldChannelData,
+    addChannel: state.addChannel,
+  }));
   const onChangeStep = (type: TYPE_CHANGE_STEP) => {
     type === TYPE_CHANGE_STEP.NEXT
       ? setStep(STEP.STEP_2)
@@ -107,16 +114,27 @@ export const AddChannelModal = () => {
           joinedAt: new Date(),
         },
       ],
+      addAllMember: true,
     };
     startTransition(async () => {
       try {
-        const channel = await createChannel(payload);
-        console.log(payload, channel);
-        mutate(
-          `?workspaceID=${channel.workspaceID}&creatorID=${channel.creatorID}`
-        );
-        closeButtonRef.current.click();
-        router.push(`/workspace/${channel.workspaceID}/home/C/${channel._id}`);
+        const res = await createChannel(payload);
+        if (res?.status === ApiStatus.OK) {
+          const channel = res.data;
+          clearOldChannelData();
+          addChannel(channel);
+          closeButtonRef.current.click();
+          router.push(
+            `/workspace/${channel.workspaceID}/home/C/${channel._id}`
+          );
+        }
+        if (res?.status === ApiStatus.ERROR) {
+          toast({
+            title: "Uh oh! Something went wrong.",
+            description:
+              "There was a problem with your create channel request.",
+          });
+        }
       } catch (e) {}
     });
   };

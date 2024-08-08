@@ -2,12 +2,12 @@
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { ListFilter, SendHorizonal, SquarePen } from "lucide-react";
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import ConversationSidebarButton from "./ConversationSidebarButton";
 import Channels from "./channels/Channels";
-import DirectMessages from "./direct-messages/DirectMessages";
+import DirectMessagesList from "./direct-messages/DirectMessagesList";
 import HelperApps from "./helper-app/HelperApps";
-import { ScrollArea } from "../ui/scroll-area";
 
 function ConversationSidebar() {
   const workspace = useOrganization();
@@ -54,7 +54,7 @@ function ConversationSidebar() {
             />
           </div>
           <div className="px-2">
-            <DirectMessages />
+            <DirectMessagesList />
           </div>
           <div className="px-2">
             <HelperApps />

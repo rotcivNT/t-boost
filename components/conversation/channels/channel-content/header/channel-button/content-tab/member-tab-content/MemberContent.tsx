@@ -1,42 +1,28 @@
 "use client";
-import { getUserInfo } from "@/app/services/action";
+import { FindBy, GetUserPayload } from "@/app/apis/api-payload/auth.payload";
+import { getUser } from "@/app/services/auth.action";
 import { useChannelStore } from "@/app/store/channel.store";
 import AddMemberDialog from "@/components/dialog-content/add-member-dialog/AddMemberDialog";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { iconStyles } from "@/components/workspace/sidebar/sidebar-body/SidebarList";
 import { UserRoundPlus } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState, useTransition } from "react";
+import { useTransition } from "react";
+import useSWR from "swr";
 import MemberButton, { MemberButtonLoading } from "./MemberButton";
 import Search from "./Search";
+import { User } from "@/types/user.type";
 
 function MemberContent() {
   const channel = useChannelStore((state) => state.currentChannel);
-
-  const [membersInfo, setMembersInfo] = useState<any>([] as any);
   const [isPending, startTransition] = useTransition();
-  useEffect(() => {
-    console.log("fetch user again");
-
-    const fetchUsers = async (userId: string[]) => {
-      try {
-        const resJson = await getUserInfo(userId);
-        return JSON.parse(resJson as string);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    if (channel) {
-      startTransition(async () => {
-        const membersId = channel.members.map((member) => member.userID);
-
-        const res = await fetchUsers(membersId);
-        setMembersInfo(res);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel]);
-
+  const payload: GetUserPayload = {
+    field: channel.members.map((member) => member.userID),
+    findBy: FindBy.CLERK_USER_ID,
+  };
+  const { data: membersInfo } = useSWR(["get-user", payload], ([_, payload]) =>
+    getUser(payload)
+  );
   return (
     <Dialog>
       <div>
@@ -57,12 +43,12 @@ function MemberContent() {
           {isPending ? (
             <MemberButtonLoading />
           ) : (
-            membersInfo.length > 0 &&
-            membersInfo.map((member: any) => (
+            membersInfo &&
+            membersInfo.map((member: User) => (
               <MemberButton
                 name={`${member.firstName} ${member.lastName}`}
-                key={member.id}
-                userId={member.id}
+                key={member.clerkUserId}
+                userId={member.clerkUserId}
                 creatorId={channel.creatorID}
                 channelId={channel._id}
                 leftIcon={

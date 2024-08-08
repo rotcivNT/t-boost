@@ -21,6 +21,8 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         icon: "flex justify-center items-center hover:bg-[rgba(248,248,248,0.25)] rounded-[5px]",
+        myCustomOutline:
+          "text-[#f8f8f8] border-[#797c8180] border hover:bg-transparent",
       },
       size: {
         auto: "",
