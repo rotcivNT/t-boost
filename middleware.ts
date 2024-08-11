@@ -1,9 +1,11 @@
 import { authMiddleware, redirectToSignIn } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
+import { isMemberInConversation } from "./app/services/channel.action";
+import { log } from "console";
 
 export default authMiddleware({
   publicRoutes: ["/"],
-  afterAuth: (auth, req, res) => {
+  afterAuth: async (auth, req, res) => {
     if (!auth.userId && !auth.isPublicRoute) {
       return redirectToSignIn({ returnBackUrl: req.url });
     }
@@ -14,6 +16,21 @@ export default authMiddleware({
     if (auth.userId && auth.orgId && auth.isPublicRoute) {
       const redirectURL = new URL(`/workspace/${auth.orgId}/home`, req.url);
       return NextResponse.redirect(redirectURL, 308);
+    }
+    if (auth.userId && auth.orgId && !auth.isPublicRoute) {
+      const c_id = req.nextUrl.pathname.split("/home/")[1];
+      if (c_id) {
+        const isInCovnersation = await isMemberInConversation(
+          c_id,
+          auth.userId
+        );
+
+        if (!isInCovnersation && !req.url.includes("[cid]")) {
+          const redirectURL = new URL(`/workspace/${auth.orgId}/home`, req.url);
+          return NextResponse.redirect(redirectURL, 308);
+        }
+        return NextResponse.next();
+      }
     }
   },
   ignoredRoutes: ["/api/webhooks(.*)"],

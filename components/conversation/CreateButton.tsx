@@ -24,7 +24,7 @@ function CreateButton({ title, onClick }: IProps) {
           {title}
         </Button>
       </DialogTrigger>
-      <DialogContent className="rounded-[6px] px-7 py-5">
+      <DialogContent className="rounded-[6px] px-7 py-5 bg-dark-secondary">
         <AddChannelModal />
       </DialogContent>
     </Dialog>

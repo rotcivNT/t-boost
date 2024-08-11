@@ -1,5 +1,6 @@
 "use server";
 
+import { ConversationType } from "@/types/conversation.type";
 import { RemoveUserProps } from "../apis/api-payload";
 import {
   CreateTaskColumnPayload,
@@ -106,5 +107,38 @@ export const updateTask = async (payload: UpdateTaskPayload) => {
     }
   } catch (e) {
     console.log(e);
+  }
+};
+
+export const isMemberInConversation = async (cid: string, userId: string) => {
+  try {
+    const type = cid.startsWith("D")
+      ? ConversationType.DIRECT_MESSAGE
+      : ConversationType.CHANNEL;
+    let isInCovnersation = false;
+
+    if (type === ConversationType.CHANNEL) {
+      const res = await channelAPI.getChannelById(`/${cid}`);
+
+      if (res.status === ApiStatus.OK) {
+        isInCovnersation = res.data.members.some(
+          (member) => member.userID === userId
+        );
+      }
+    } else if (type === ConversationType.DIRECT_MESSAGE) {
+      const res = await channelAPI.getDirectConversationById(
+        `get-direct-conversation/${cid.slice(1)}`
+      );
+
+      if (res.status === ApiStatus.OK) {
+        isInCovnersation = res.data[0].members.some(
+          (memberId) => memberId === userId
+        );
+      }
+    }
+    return isInCovnersation;
+  } catch (e) {
+    console.log(e);
+    return false;
   }
 };

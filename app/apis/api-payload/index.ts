@@ -39,7 +39,7 @@ export enum MessageType {
 export enum SystemMessageContent {
   MEMBER_JOINED = "member.joined",
   MEMBER_LEFT = "member.left",
-  MEMBER_REMOVED = "member.removed",
+  MEMBER_DELETED = "member.deleted",
   MEMBER_INVITED = "member.invited",
   MEMBER_UPDATED = "member.updated",
   CHANNEL_UPDATED = "channel.updated",

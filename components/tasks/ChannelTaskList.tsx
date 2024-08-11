@@ -5,13 +5,22 @@ import useSWR from "swr";
 import ChannelTaskListSearch from "./ChannelTaskListSearch";
 import { useChannelStore } from "@/app/store/channel.store";
 import Task from "./Task";
+import { useState } from "react";
+import { ChannelProps } from "@/types";
 
 export default function ChannelTaskList() {
   const auth = useAuth();
   const { data, isLoading } = useSWR(
     auth.isSignedIn ? `?workspaceId=${auth.orgId}&userId=${auth.userId}` : null,
-    getAllChannelsById
+    getAllChannelsById,
+    {
+      onSuccess: (data) => {
+        data && setChannels([...data]);
+      },
+    }
   );
+
+  const [channels, setChannels] = useState<ChannelProps[]>([]);
   const { showTask, setShowTask } = useChannelStore((state) => ({
     showTask: state.showTask,
     setShowTask: state.setShowTask,
@@ -22,10 +31,12 @@ export default function ChannelTaskList() {
   ) : (
     <div className="py-5 px-4">
       <h3 className="font-bold text-text-primary text-[18px]">All channels</h3>
-      <ChannelTaskListSearch />
+      {data && (
+        <ChannelTaskListSearch channels={data} setChannels={setChannels} />
+      )}
       <ul className="bg-dark-secondary divide-y border rounded-[10px] list-none">
-        {data &&
-          data.map((item) => (
+        {channels &&
+          channels.map((item) => (
             <li
               onClick={() =>
                 setShowTask({ channelId: item._id, isShowTask: true })

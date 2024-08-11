@@ -1,14 +1,43 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TabsContent } from "@/components/ui/tabs";
 import { ChannelProps } from "@/types";
 import { Copy } from "lucide-react";
 import ContentButton from "../ContentButton";
+import { RemoveUserProps } from "@/app/apis/api-payload";
+import { useAuth } from "@clerk/nextjs";
+import { removeMember } from "@/app/services/channel.action";
+import { ApiStatus } from "@/app/utils/api.response";
+import { useChannelStore } from "@/app/store/channel.store";
+import { useRouter } from "next/navigation";
+import { mutate } from "swr";
 
 interface IProps {
   channel: ChannelProps;
 }
 
 function AboutContent({ channel }: IProps) {
+  const setPartialDataChannel = useChannelStore(
+    (state) => state.setPartialDataChannel
+  );
+  const router = useRouter();
+  const auth = useAuth();
+  const onRemoveUser = async () => {
+    if (!auth.isSignedIn) return;
+    const payload: RemoveUserProps = {
+      channelId: channel._id,
+      senderId: auth.userId,
+      deleteId: auth.userId,
+    };
+    try {
+      router.push(`workspace/${auth.orgId}/home`);
+      const res = await removeMember(payload);
+      if (res?.status === ApiStatus.OK) {
+        mutate(`?workspaceId=${auth.orgId}&userId=${auth.userId}`);
+        setPartialDataChannel({ members: res.data.members });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <ScrollArea className="h-full px-7">
       <ContentButton
@@ -39,9 +68,10 @@ function AboutContent({ channel }: IProps) {
 
         <ContentButton
           channel={channel}
+          onClick={onRemoveUser}
           title="Leave channel"
           editable={false}
-          className="text-[#E01E5A]"
+          className="text-[#E01E5A] cursor-pointer"
         />
       </div>
       <ContentButton

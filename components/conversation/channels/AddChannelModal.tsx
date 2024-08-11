@@ -124,9 +124,8 @@ export const AddChannelModal = () => {
           clearOldChannelData();
           addChannel(channel);
           closeButtonRef.current.click();
-          router.push(
-            `/workspace/${channel.workspaceID}/home/C/${channel._id}`
-          );
+
+          router.push(`/workspace/${channel.workspaceID}/home/${channel._id}`);
         }
         if (res?.status === ApiStatus.ERROR) {
           toast({

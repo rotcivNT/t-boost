@@ -1,3 +1,5 @@
+import { Sender } from "@/app/apis/api-payload";
+
 export interface TaskAttachment {
   fileName: string;
   fileUrl: string;
@@ -24,6 +26,7 @@ export interface TaskCard {
   attachments: TaskAttachment[];
   createdAt: string;
   updatedAt: string;
+  membersInfo?: Sender[];
 }
 
 export interface ShowTask {

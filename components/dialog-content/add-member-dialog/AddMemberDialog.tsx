@@ -12,6 +12,7 @@ import CommonDialogContent from "../CommonDialogContent";
 import ContentChip from "./ContentChip";
 import { ChannelSettings } from "@/types";
 import { updateChannel } from "@/app/services/action";
+import { toast } from "sonner";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -29,7 +30,6 @@ function AddMemberDialog() {
     })
   );
   const { user } = useUser();
-  const { toast } = useToast();
   const [inputValue, setInputValue] = useState<string>("");
   const [chips, setChips] = useState<ChipProps[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -95,10 +95,7 @@ function AddMemberDialog() {
         }
       }
 
-      toast({
-        title: "Notify",
-        description: "Successfully",
-      });
+      toast.success("Email sending successfully");
     });
   };
 

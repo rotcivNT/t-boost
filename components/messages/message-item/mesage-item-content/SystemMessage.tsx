@@ -13,6 +13,8 @@ function SystemMessage({ message }: IProps) {
     switch (message.content) {
       case SystemMessageContent.MEMBER_JOINED:
         return "joined the channel";
+      case SystemMessageContent.MEMBER_DELETED:
+        return "was removed from the channel";
     }
   }, [message]);
 

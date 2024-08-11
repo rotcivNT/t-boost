@@ -27,6 +27,8 @@ export default function Task() {
       : null,
     getTaskByChannelId
   );
+  console.log(data);
+
   const onClose = () => setShowAddColumn(false);
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination || !data) return;

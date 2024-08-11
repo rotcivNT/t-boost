@@ -4,15 +4,13 @@ import {
   ContextMenuContent,
   ContextMenuItem,
 } from "@/components/ui/context-menu";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Bookmark } from "@/types";
 import { ContextMenuTrigger } from "@radix-ui/react-context-menu";
 import Image from "next/image";
 import Link from "next/link";
-import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
 import { useMemo, useState } from "react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-// import { socket } from "@/configs/socket";
-import { usePathname } from "next/navigation";
+import { BookmarkDialogContent } from "./dialog-content/BookmarkDialogContent";
 import { LinkIcon } from "lucide-react";
 
 interface IProps {
@@ -21,7 +19,6 @@ interface IProps {
 }
 
 function BookmarkItem({ bookmark, folderName }: IProps) {
-  const channelId = usePathname().split("/C/")[1];
   const [isDelete, setIsDelete] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
   const initValue = useMemo(() => {

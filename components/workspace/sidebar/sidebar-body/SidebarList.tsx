@@ -41,10 +41,6 @@ const sidebarData = [
     icon: <Tv {...iconStyles} />,
   },
   {
-    title: "People",
-    icon: <ContactRound {...iconStyles} />,
-  },
-  {
     title: "Tasks",
     icon: <ListTodo {...iconStyles} />,
   },

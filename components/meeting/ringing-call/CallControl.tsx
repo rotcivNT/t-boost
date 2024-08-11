@@ -1,9 +1,7 @@
 import {
   AcceptCallButton,
-  CallingState,
   CancelCallButton,
   useCall,
-  useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 
 export const CallControls = () => {
@@ -17,8 +15,9 @@ export const CallControls = () => {
         <AcceptCallButton
           onClick={() =>
             window.open(
-              `http://localhost:3000/workspace/meeting/${call.id}`,
-              "_blank"
+              `/workspace/meeting/${call.id}`,
+              "_blank",
+              "width=800,height=600"
             )
           }
         />

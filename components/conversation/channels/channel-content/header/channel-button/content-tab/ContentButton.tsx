@@ -11,6 +11,7 @@ interface IProps {
   subTitle?: string;
   className?: string;
   editable?: boolean;
+  onClick?: () => void;
 }
 
 function ContentButton({
@@ -19,6 +20,7 @@ function ContentButton({
   subTitle,
   className,
   editable = true,
+  onClick,
 }: IProps) {
   const staticData: any = {
     ["channel name"]: {
@@ -48,6 +50,7 @@ function ContentButton({
         styles["content-button-trigger"],
         className
       )}
+      onClick={onClick}
     >
       <Dialog>
         <div

@@ -38,21 +38,23 @@ export default function TaskCardItem({ task }: IProps) {
             {task.attachments.length > 0 && (
               <p className="text-[12px] flex gap-1 items-center">
                 <MyLinkIcon />
-                <span className="text-inherit">1</span>
+                <span className="text-inherit">{task.attachments.length}</span>
               </p>
             )}
           </div>
           {/* members */}
           <div className="pb-2">
             <div className="hover:opacity-85">
-              <Image
-                src="https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvdXBsb2FkZWQvaW1nXzJrMDVTcGVwUnNGM1paZHZieGxYNWJVTUxkRSJ9?width=80"
-                alt="1"
-                title="Thắng Võ"
-                width={20}
-                height={20}
-                className="rounded-full size-6 object-cover"
-              />
+              {task.membersInfo && (
+                <Image
+                  src={task.membersInfo[0].imageUrl}
+                  alt={task.membersInfo[0].fullName}
+                  title={task.membersInfo[0].fullName}
+                  width={20}
+                  height={20}
+                  className="rounded-full size-6 object-cover"
+                />
+              )}
             </div>
           </div>
         </div>

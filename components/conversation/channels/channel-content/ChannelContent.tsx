@@ -1,16 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+import { ConversationApiKeys } from "@/app/apis/api-key/conversation-api.key";
 import { getChannelById } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
+import { useMessageSharedStore } from "@/app/store/message-shared.store";
 import { Separator } from "@/components/ui/separator";
 import { pusher } from "@/configs/pusher";
 import { ChannelProps } from "@/types";
 import { useEffect } from "react";
 import useSWR from "swr";
-import ChannelContentHeader from "./header/ChannelContentHeader";
 import ChannelMessageContainer from "../../../messages/ChannelMessageContainer";
-import { useMessageSharedStore } from "@/app/store/message-shared.store";
-import { ConversationApiKeys } from "@/app/apis/api-key/conversation-api.key";
+import ChannelContentHeader from "./header/ChannelContentHeader";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 interface IProps {
   cid: string;
@@ -21,6 +23,9 @@ function ChannelContent({ cid }: IProps) {
     ConversationApiKeys.getChannelByIdKey(cid),
     getChannelById
   );
+  const router = useRouter();
+  const auth = useAuth();
+
   const { setCurrentChannel, setPartialDataChannel } = useChannelStore(
     (state) => ({
       setCurrentChannel: state.setCurrentChannel,
@@ -31,6 +36,8 @@ function ChannelContent({ cid }: IProps) {
     (state) => state.setQueryMessageUrl
   );
   useEffect(() => {
+    if (!auth.isSignedIn) return;
+
     let channelEvent: any = {
       unsubscribe: () => null,
       unbind: (event: string, callBack: any) => null,
@@ -50,21 +57,28 @@ function ChannelContent({ cid }: IProps) {
       }
     };
 
+    const handleOutGroup = (res: any) => {
+      router.push(`/workspace/${auth.orgId}/home`);
+    };
+    const userEvent = pusher.subscribe(auth.userId);
+    userEvent.bind("member.deleted", handleOutGroup);
+
     if (channel) {
       setCurrentChannel(channel[0]);
       setQueryMessageUrl(`?receiverId=${channel[0]._id}`);
       if (channel && channel[0]._id) {
         channelEvent = pusher.subscribe(channel[0]._id);
-        channelEvent.bind("new-member-joined", handleChangeMembership);
-        channelEvent.bind("remove-member", handleChangeMembership);
+        channelEvent.bind("member.joined", handleChangeMembership);
+        channelEvent.bind("member.deleted", handleChangeMembership);
         channelEvent.bind("add-bookmark", handleAddBookmark);
       }
     }
     return () => {
       channelEvent.unsubscribe();
-      channelEvent.unbind("new-member-joined", handleChangeMembership);
-      channelEvent.unbind("remove-member", handleChangeMembership);
+      channelEvent.unbind("member.joined", handleChangeMembership);
+      channelEvent.unbind("member.deleted", handleChangeMembership);
       channelEvent.unbind("add-bookmark", handleAddBookmark);
+      userEvent.unbind("member.deleted", handleOutGroup);
     };
   }, [isLoading, channel]);
 

@@ -77,13 +77,10 @@ function MessageItemContent({ message }: IProps) {
   const { channel } = useChannelStore((state) => ({
     channel: state.currentChannel,
   }));
-  const { queryMessageUrl, messages, setAllMessages } = useMessageSharedStore(
-    (state) => ({
-      queryMessageUrl: state.queryMessageUrl,
-      messages: state.allMessages,
-      setAllMessages: state.setAllMessages,
-    })
-  );
+  const { messages, setAllMessages } = useMessageSharedStore((state) => ({
+    messages: state.allMessages,
+    setAllMessages: state.setAllMessages,
+  }));
   const isFileAllImages = useMemo(() => {
     return message.files?.every((file) => file.type === "image");
   }, [message.files]);
