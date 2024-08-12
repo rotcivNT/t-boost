@@ -17,21 +17,21 @@ export default authMiddleware({
       const redirectURL = new URL(`/workspace/${auth.orgId}/home`, req.url);
       return NextResponse.redirect(redirectURL, 308);
     }
-    if (auth.userId && auth.orgId && !auth.isPublicRoute) {
-      const c_id = req.nextUrl.pathname.split("/home/")[1];
-      if (c_id) {
-        const isInCovnersation = await isMemberInConversation(
-          c_id,
-          auth.userId
-        );
+    // if (auth.userId && auth.orgId && !auth.isPublicRoute) {
+    //   const c_id = req.nextUrl.pathname.split("/home/")[1];
+    //   if (c_id) {
+    //     const isInCovnersation = await isMemberInConversation(
+    //       c_id,
+    //       auth.userId
+    //     );
 
-        if (!isInCovnersation && !req.url.includes("[cid]")) {
-          const redirectURL = new URL(`/workspace/${auth.orgId}/home`, req.url);
-          return NextResponse.redirect(redirectURL, 308);
-        }
-        return NextResponse.next();
-      }
-    }
+    //     if (!isInCovnersation && !req.url.includes("[cid]")) {
+    //       const redirectURL = new URL(`/workspace/${auth.orgId}/home`, req.url);
+    //       return NextResponse.redirect(redirectURL, 308);
+    //     }
+    //     return NextResponse.next();
+    //   }
+    // }
   },
   ignoredRoutes: ["/api/webhooks(.*)"],
 });
