@@ -22,7 +22,7 @@ interface IProps {
 }
 
 function AddBookmarkMenu({ type, data }: IProps) {
-  console.log("ADD BOOK MARK MENU", data.bookmarkFolders);
+  console.log("ADD BOOK MARK MENU", data);
 
   const [isFolder, setIsFolder] = useState(false);
   return (
