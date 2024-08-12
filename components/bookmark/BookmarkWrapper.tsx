@@ -27,16 +27,15 @@ function BookmarkWrapper<T extends ConversationType>({
   }, [conversationId, type]);
 
   const { data, isLoading } = useSWR(apiKey, GetConversationApiFunction[type]);
-  console.log("bookmark", data);
 
   return (
     data && (
       <div className="flex justify-between items-center flex-1">
-        {/* <BookmarkList
+        <BookmarkList
           bookmarkFolders={data[0].bookmarkFolders}
           bookmarks={data[0].bookmarks}
-        /> */}
-        <AddBookmarkMenu data={data} type={type} />
+        />
+        <AddBookmarkMenu data={data[0]} type={type} />
       </div>
     )
   );

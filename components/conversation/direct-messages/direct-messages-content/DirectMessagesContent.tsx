@@ -40,7 +40,6 @@ export default function DirectMessagesContent({ cid }: IProps) {
       },
     }
   );
-  console.log(data);
 
   return (
     <ResizablePanelGroup
