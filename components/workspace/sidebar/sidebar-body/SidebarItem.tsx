@@ -13,7 +13,7 @@ interface IProps {
 function SidebarItem({ icon, title }: IProps) {
   const { orgId } = useAuth();
   const pathName = usePathname();
-  const isActive = pathName.includes(title.toLocaleLowerCase());
+  const isActive = pathName.includes(`${orgId}/${title.toLocaleLowerCase()}`);
   return (
     <Link
       href={`/workspace/${orgId}/${title.toLowerCase()}`}

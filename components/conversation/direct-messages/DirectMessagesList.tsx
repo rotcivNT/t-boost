@@ -32,24 +32,28 @@ function DirectMessagesList() {
       {data &&
         data.map((item) => {
           const receiver =
-            item.membersInfo[0].clerkUserId === auth.userId
-              ? item.membersInfo[1]
-              : item.membersInfo[0];
+            item.membersInfo && item.membersInfo.length > 0
+              ? item.membersInfo[0].clerkUserId === auth.userId
+                ? item.membersInfo[1]
+                : item.membersInfo[0]
+              : null;
           return (
-            <ConversationSidebarButton
-              key={item._id}
-              title={receiver.fullName}
-              href={`/workspace/${auth.orgId}/home/D${item._id}`}
-              icon={
-                <Image
-                  alt=""
-                  src={receiver.imageUrl}
-                  width={20}
-                  height={20}
-                  className="rounded-[5px] relative left-[-2px]"
-                />
-              }
-            />
+            receiver && (
+              <ConversationSidebarButton
+                key={item._id}
+                title={receiver.fullName}
+                href={`/workspace/${auth.orgId}/home/D${item._id}`}
+                icon={
+                  <Image
+                    alt=""
+                    src={receiver.imageUrl}
+                    width={20}
+                    height={20}
+                    className="rounded-[5px] relative left-[-2px]"
+                  />
+                }
+              />
+            )
           );
         })}
     </ConversationSidebarItem>

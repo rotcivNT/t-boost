@@ -1,3 +1,4 @@
+import { LastMessage } from "@/types/dc.type";
 import { TaskAttachment } from "@/types/task.type";
 
 export interface GetDirectConversation {
@@ -45,4 +46,9 @@ export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {
   cover?: string;
 
   description?: string;
+}
+
+export interface UpdateDCPayload {
+  dcId: string;
+  lastMessage: LastMessage;
 }

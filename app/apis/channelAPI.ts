@@ -10,6 +10,7 @@ import {
   CreateTaskColumnPayload,
   CreateTaskPayload,
   GetDirectConversation,
+  UpdateDCPayload,
   UpdateTaskColumn,
   UpdateTaskPayload,
   UpdateTaskStatePayload,
@@ -197,6 +198,18 @@ export const channelAPI = {
     payload: UpdateTaskPayload
   ): Promise<ChannelTaskCardReponse> => {
     const res = await fetch(`${baseURL}/update-task`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  updateDC: async (
+    payload: UpdateDCPayload
+  ): Promise<DirectConversationResponse> => {
+    const res = await fetch(`${baseURL}/update-dc`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

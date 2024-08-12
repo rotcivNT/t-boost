@@ -6,6 +6,7 @@ import {
   CreateTaskColumnPayload,
   CreateTaskPayload,
   GetDirectConversation,
+  UpdateDCPayload,
   UpdateTaskColumn,
   UpdateTaskPayload,
   UpdateTaskStatePayload,
@@ -140,5 +141,16 @@ export const isMemberInConversation = async (cid: string, userId: string) => {
   } catch (e) {
     console.log(e);
     return false;
+  }
+};
+
+export const updateDC = async (updateDC: UpdateDCPayload) => {
+  try {
+    const res = await channelAPI.updateDC(updateDC);
+    if (res.status === ApiStatus.OK) {
+      return res.data;
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

@@ -13,6 +13,7 @@ import {
   UpdateMessageProps,
   UploadFileProps,
 } from "@/app/apis/api-payload";
+import { UpdateDCPayload } from "@/app/apis/api-payload/conversation.payload";
 import { addMessage } from "@/app/helpers/addMessage";
 import {
   updateMessageByUniqueId,
@@ -35,6 +36,8 @@ import { v4 as uuidv4 } from "uuid";
 import MessageReply from "../message-item/mesage-item-content/MessageReply";
 import LinkPreview from "./link-preview/LinkPreview";
 import PreviewList from "./preview-file/PreviewList";
+import { updateDC } from "@/app/services/channel.action";
+import { mutate } from "swr";
 
 function ChatInput({ store, type, conversationId }: ChatInputProps) {
   const [onPressEnter, setOnPressEnter] = useState<boolean>(false);
@@ -126,12 +129,33 @@ function ChatInput({ store, type, conversationId }: ChatInputProps) {
       formData.append("payload", JSON.stringify(createMessageItemDto));
 
       formData.append("uniqueId", createMessageItemDto.uniqueId);
-      const res = await sendMessage(formData);
-      if (res && res.status === ApiStatus.OK) {
-        if (actionMessage) {
-          res.data.replyMessage = [actionMessage.message];
+      const UpdateDCPayload: UpdateDCPayload = {
+        dcId: conversationId,
+        lastMessage: {
+          content: createMessageItemDto.content,
+          createdAt: new Date().toISOString(),
+          senderId: user?.id as string,
+          type:
+            createMessageItemDto.files && createMessageItemDto.files.length > 0
+              ? MessageType.FILE
+              : MessageType.TEXT,
+        },
+      };
+      try {
+        const [updateDCRes, res] = await Promise.all([
+          updateDC(UpdateDCPayload),
+          sendMessage(formData),
+        ]);
+
+        if (res && res.status === ApiStatus.OK) {
+          if (actionMessage) {
+            res.data.replyMessage = [actionMessage.message];
+          }
+          return res.data;
         }
-        return res.data;
+      } catch (error) {
+        console.error("Error in updateDC or sendMessage:", error);
+        // Handle error appropriately
       }
     }
     if (uploadRes?.code === -1) {

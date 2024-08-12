@@ -29,6 +29,10 @@ const sidebarData = [
     icon: <MessageCircle {...iconStyles} />,
   },
   {
+    title: "Tasks",
+    icon: <ListTodo {...iconStyles} />,
+  },
+  {
     title: "Huddles",
     icon: <Headset {...iconStyles} />,
   },
@@ -39,10 +43,6 @@ const sidebarData = [
   {
     title: "Channels",
     icon: <Tv {...iconStyles} />,
-  },
-  {
-    title: "Tasks",
-    icon: <ListTodo {...iconStyles} />,
   },
 ];
 
