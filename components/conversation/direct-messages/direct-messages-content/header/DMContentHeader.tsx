@@ -37,15 +37,15 @@ export default function DMContentHeader() {
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <HuddleButton
+            {/* <HuddleButton
               receiverId={pathName.split("/home/")[1].slice(1)}
               memberIds={[currentDMUser.clerkUserId, user.id]}
-            />
+            /> */}
           </div>
         </div>
-        <div className="pl-5 pr-3 h-9 flex items-center">
+        {/* <div className="pl-5 pr-3 h-9 flex items-center">
           <BookmarkWrapper type={ConversationType.DIRECT_MESSAGE} />
-        </div>
+        </div> */}
       </div>
     )
   );
