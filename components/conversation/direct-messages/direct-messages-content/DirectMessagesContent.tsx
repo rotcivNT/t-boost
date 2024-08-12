@@ -43,30 +43,31 @@ export default function DirectMessagesContent({ cid }: IProps) {
   console.log(data);
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className="w-full rounded-lg border-none"
-    >
-      <ResizablePanel defaultSize={65}>
-        <div className="flex flex-1 flex-col h-full">
-          <DMContentHeader />
-          <Separator />
-          <div className="flex-1 h-[calc(100%-126px)]">
-            <DCMessageWrapper />
-          </div>
-        </div>
-      </ResizablePanel>
+    <div>data</div>
+    // <ResizablePanelGroup
+    //   direction="horizontal"
+    //   className="w-full rounded-lg border-none"
+    // >
+    //   <ResizablePanel defaultSize={65}>
+    //     <div className="flex flex-1 flex-col h-full">
+    //       <DMContentHeader />
+    //       <Separator />
+    //       <div className="flex-1 h-[calc(100%-126px)]">
+    //         <DCMessageWrapper />
+    //       </div>
+    //     </div>
+    //   </ResizablePanel>
 
-      {auth.isSignedIn && isOpenProfile && (
-        <>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={35}>
-            <div>
-              <Profile clerkUserId={auth.userId} />
-            </div>
-          </ResizablePanel>
-        </>
-      )}
-    </ResizablePanelGroup>
+    //   {auth.isSignedIn && isOpenProfile && (
+    //     <>
+    //       <ResizableHandle />
+    //       <ResizablePanel defaultSize={35}>
+    //         <div>
+    //           <Profile clerkUserId={auth.userId} />
+    //         </div>
+    //       </ResizablePanel>
+    //     </>
+    //   )}
+    // </ResizablePanelGroup>
   );
 }
