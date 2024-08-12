@@ -7,7 +7,7 @@ import parse from "html-react-parser";
 interface IProps {
   replyMessage: MessageItemProps;
   className?: string;
-  onJump: (key: string) => void;
+  onJump?: (key: string) => void;
 }
 
 const RenderFile = ({ file }: { file: FileData }) => {
@@ -38,7 +38,7 @@ function MessageReply({ replyMessage, className, onJump }: IProps) {
         "min-w-[50%] lg:min-w-[300px] my-1",
         className
       )}
-      onClick={() => onJump(replyMessage._id)}
+      onClick={onJump ? () => onJump(replyMessage._id) : undefined}
     >
       <div className="w-1 rounded-[8px] bg-[#D0D0D0]" />
       <div className="flex items-center gap-2">
