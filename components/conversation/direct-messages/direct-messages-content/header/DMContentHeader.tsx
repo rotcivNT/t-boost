@@ -12,6 +12,8 @@ export default function DMContentHeader() {
   const currentDMUser = useDirectMessageStore((state) => state.currentDMUser);
   const pathName = usePathname();
   const { user } = useUser();
+  console.log(currentDMUser, user);
+
   return (
     currentDMUser &&
     user && (
