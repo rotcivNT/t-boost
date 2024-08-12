@@ -42,9 +42,9 @@ export default function DMContentHeader() {
             />
           </div>
         </div>
-        {/* <div className="pl-5 pr-3 h-9 flex items-center">
+        <div className="pl-5 pr-3 h-9 flex items-center">
           <BookmarkWrapper type={ConversationType.DIRECT_MESSAGE} />
-        </div> */}
+        </div>
       </div>
     )
   );
