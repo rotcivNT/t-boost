@@ -38,6 +38,7 @@ import LinkPreview from "./link-preview/LinkPreview";
 import PreviewList from "./preview-file/PreviewList";
 import { updateDC } from "@/app/services/channel.action";
 import { mutate } from "swr";
+import { ConversationType } from "@/types/conversation.type";
 
 function ChatInput({ store, type, conversationId }: ChatInputProps) {
   const [onPressEnter, setOnPressEnter] = useState<boolean>(false);
@@ -142,9 +143,11 @@ function ChatInput({ store, type, conversationId }: ChatInputProps) {
         },
       };
       try {
-        const [updateDCRes, res] = await Promise.all([
-          updateDC(UpdateDCPayload),
+        const [res] = await Promise.all([
           sendMessage(formData),
+          type === ConversationType.DIRECT_MESSAGE
+            ? updateDC(UpdateDCPayload)
+            : undefined,
         ]);
 
         if (res && res.status === ApiStatus.OK) {
@@ -194,6 +197,7 @@ function ChatInput({ store, type, conversationId }: ChatInputProps) {
           fullName: user?.fullName as string,
           imageUrl: user?.imageUrl as string,
         },
+        createdAt: new Date(),
       };
       if (linkMetadata) {
         createMessageItemDto.metadata = linkMetadata;
@@ -208,6 +212,7 @@ function ChatInput({ store, type, conversationId }: ChatInputProps) {
             isSending: true,
             filesStatus: files,
             replyMessage: [],
+            createdAt: new Date().toISOString(),
           },
         ],
       };
@@ -319,6 +324,7 @@ function ChatInput({ store, type, conversationId }: ChatInputProps) {
       {actionMessage?.type === ActionType.REPLY && (
         <div className="relative">
           <MessageReply
+            onJump={() => {}}
             replyMessage={actionMessage?.message as MessageItemProps}
             className="w-full cursor-default"
           />

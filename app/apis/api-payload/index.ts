@@ -78,6 +78,8 @@ export interface SendMessageProps {
   uniqueId: string;
 
   files?: FileData[];
+
+  createdAt?: Date;
 }
 
 export interface GetMessageDto {

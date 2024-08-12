@@ -12,7 +12,6 @@ import {
 
 function BookmarkWrapper<T extends ConversationType>({
   type,
-  store,
 }: ConversationState<T>) {
   const { cid: conversationId } = useParams();
   const apiKey = useMemo(() => {
@@ -26,7 +25,7 @@ function BookmarkWrapper<T extends ConversationType>({
     }
   }, [conversationId, type]);
 
-  const { data, isLoading } = useSWR(apiKey, GetConversationApiFunction[type]);
+  const { data } = useSWR(apiKey, GetConversationApiFunction[type]);
 
   return (
     data && (

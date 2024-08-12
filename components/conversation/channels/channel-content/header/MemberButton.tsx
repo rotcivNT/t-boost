@@ -1,3 +1,5 @@
+import { FindBy, GetUserPayload } from "@/app/apis/api-payload/auth.payload";
+import { getUser } from "@/app/services/auth.action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -6,15 +8,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Image from "next/image";
-import ChannelDetails from "./channel-button/ChannelDetails";
-import useSWR from "swr";
-import { getUser } from "@/app/services/auth.action";
-import { FindBy, GetUserPayload } from "@/app/apis/api-payload/auth.payload";
 import { cn } from "@/lib/utils";
-import { ApiStatus } from "@/app/utils/api.response";
+import Image from "next/image";
+import useSWR from "swr";
+import ChannelDetails from "./channel-button/ChannelDetails";
 
-const displayMemberCount = 5;
+const displayMemberCount = 3;
 
 function MemberButton() {
   const channel = useChannelStore().currentChannel;
@@ -42,9 +41,10 @@ function MemberButton() {
                     alt={member.fullName}
                     width={20}
                     height={20}
-                    className="rounded-[4px] size-5 relative [&+img]:-left-2 object-cover"
+                    className="rounded-[4px] size-5 relative object-cover"
                     style={{
                       zIndex: displayMemberCount - index,
+                      left: -index * 8,
                     }}
                   />
                 ))}

@@ -13,11 +13,12 @@ import MeetingLinkMessage from "./mesage-item-content/MeetingLinkMessage";
 
 interface IProps {
   message: MessageItemProps;
+  onJump: (key: string) => void;
 }
 
 // eslint-disable-next-line react/display-name
 const MessageItem = forwardRef(
-  ({ message }: IProps, ref: LegacyRef<HTMLDivElement>) => {
+  ({ message, onJump }: IProps, ref: LegacyRef<HTMLDivElement>) => {
     const [isOpenDropdown, setIsOpenDropdown] = useState(false);
     if (message.type === MessageType.SYSTEM) {
       return (
@@ -59,7 +60,10 @@ const MessageItem = forwardRef(
                 </p>
               </div>
               {message?.replyMessage?.length > 0 && (
-                <MessageReply replyMessage={message.replyMessage[0]} />
+                <MessageReply
+                  onJump={onJump}
+                  replyMessage={message.replyMessage[0]}
+                />
               )}
               <MessageItemContent message={message} />
             </div>

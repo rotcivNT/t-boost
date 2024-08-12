@@ -41,13 +41,10 @@ function MessageItemAction({
   const { channel } = useChannelStore((state) => ({
     channel: state.currentChannel,
   }));
-  const { queryMessageUrl, messages, setAllMessages } = useMessageSharedStore(
-    (state) => ({
-      queryMessageUrl: state.queryMessageUrl,
-      messages: state.allMessages,
-      setAllMessages: state.setAllMessages,
-    })
-  );
+  const { messages, setAllMessages } = useMessageSharedStore((state) => ({
+    messages: state.allMessages,
+    setAllMessages: state.setAllMessages,
+  }));
   const clusterId = useMemo(() => {
     return (message.createdAt as string).split("T")[0];
   }, [message.createdAt]);

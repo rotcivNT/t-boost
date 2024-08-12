@@ -3,9 +3,11 @@ import TBImage from "@/components/common/TBImage";
 import { cn } from "@/lib/utils";
 import { FileData, MessageItemProps } from "@/types";
 import parse from "html-react-parser";
+
 interface IProps {
   replyMessage: MessageItemProps;
   className?: string;
+  onJump: (key: string) => void;
 }
 
 const RenderFile = ({ file }: { file: FileData }) => {
@@ -24,7 +26,7 @@ const RenderFile = ({ file }: { file: FileData }) => {
   );
 };
 
-function MessageReply({ replyMessage, className }: IProps) {
+function MessageReply({ replyMessage, className, onJump }: IProps) {
   const file =
     replyMessage?.files && replyMessage?.files.length > 0
       ? replyMessage?.files[0]
@@ -36,6 +38,7 @@ function MessageReply({ replyMessage, className }: IProps) {
         "min-w-[50%] lg:min-w-[300px] my-1",
         className
       )}
+      onClick={() => onJump(replyMessage._id)}
     >
       <div className="w-1 rounded-[8px] bg-[#D0D0D0]" />
       <div className="flex items-center gap-2">
