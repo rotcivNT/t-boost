@@ -32,10 +32,10 @@ function BookmarkWrapper<T extends ConversationType>({
   return (
     data && (
       <div className="flex justify-between items-center flex-1">
-        <BookmarkList
+        {/* <BookmarkList
           bookmarkFolders={data[0].bookmarkFolders}
           bookmarks={data[0].bookmarks}
-        />
+        /> */}
         <AddBookmarkMenu data={data} type={type} />
       </div>
     )
