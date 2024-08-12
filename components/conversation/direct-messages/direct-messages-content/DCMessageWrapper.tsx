@@ -9,7 +9,7 @@ export default function DCMessageWrapper() {
   const sharedMessageStore = useMessageSharedStore();
   const { getRootProps } = useDropzone({
     noClick: true,
-    onDrop(acceptedFiles, fileRejections, event) {
+    onDrop(acceptedFiles) {
       acceptedFiles.forEach((file) => sharedMessageStore.setFiles(file));
     },
   });
