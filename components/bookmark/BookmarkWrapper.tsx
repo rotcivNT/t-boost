@@ -27,7 +27,6 @@ function BookmarkWrapper<T extends ConversationType>({
   }, [conversationId, type]);
 
   const { data, isLoading } = useSWR(apiKey, GetConversationApiFunction[type]);
-  console.log("bookmark", data);
 
   return (
     data && (
