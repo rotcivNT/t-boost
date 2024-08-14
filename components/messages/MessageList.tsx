@@ -44,6 +44,8 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
   const [jumpTo, setJumpTo] = useState("");
   const [scrollToKey, setScrollToKey] = useState<string>("");
   const [isLoadMoreMsg, setIsLoadMoreMsg] = useState(false);
+  const [isJump, setIsJump] = useState(false);
+  const [firstLoadSuccess, setFirstLoadSuccess] = useState(false);
 
   const { data, isLoading, mutate } = useSWR(
     conversationId ? MessageApiKeys.getMessage(queryMessageUrl) : null,
@@ -52,6 +54,9 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
       keepPreviousData: true,
       revalidateIfStale: false,
       revalidateOnFocus: false,
+      onSuccess: () => {
+        setFirstLoadSuccess(true);
+      },
     }
   );
 
@@ -66,18 +71,27 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
     });
   };
 
+  const onJump = (key: string) => {
+    for (const [_, clusterMessages] of allMessages.entries()) {
+      const message = clusterMessages.messages.find((msg) => msg._id === key);
+      if (message) {
+        setIsJump(true);
+        setScrollToKey(message._id);
+        return;
+      }
+      setIsJump(true);
+      setJumpTo(key);
+      setQueryMessageUrl(`?receiverId=${conversationId}&aroundId=${key}`);
+    }
+  };
+
   const onScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       if (conversationId !== currentConversationId || !allMessages) return;
       const { scrollTop } = e.target as HTMLDivElement;
-
       if (scrollTop <= 0 && !isPending) {
         if (
-          !(
-            queryMessageUrl.includes("beforeId") &&
-            allMessages &&
-            allMessages.size === 0
-          )
+          !(queryMessageUrl.includes("beforeId") && data && data.length === 0)
         ) {
           setIsLoadMoreMsg(true);
           loadMoreMessages();
@@ -96,7 +110,6 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
 
       if (
         key &&
-        jumpTo &&
         isElementInViewport(
           itemRefs.current[key],
           chatListRef.current as HTMLDivElement
@@ -114,15 +127,18 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
   useLayoutEffect(() => {
     setAllMessages(new Map());
   }, [cid]);
+
   useLayoutEffect(() => {
     if (!chatListRef.current) return;
     if (
       scrollToKey === undefined ||
-      (chatListRef.current as HTMLDivElement).scrollTop !== 0
+      ((chatListRef.current as HTMLDivElement).scrollTop !== 0 && !isJump)
     )
       return;
+
     if (itemRefs.current[scrollToKey]) {
       itemRefs.current[scrollToKey].scrollIntoView();
+      setJumpTo("");
       setScrollToKey("");
     }
   }, [scrollToKey]);
@@ -132,31 +148,48 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
       const messages = SerializeMessageToMap(data);
       if (jumpTo) {
         setScrollToKey(jumpTo);
-      } else {
-        if (isLoadMoreMsg) {
-          setIsLoadMoreMsg(false);
-          const firstCluster: MessageCluster = allMessages.entries().next()
-            .value[1];
-          setScrollToKey(firstCluster.messages[0]._id);
-        }
+        setAllMessages(messages);
+        return;
       }
-      if (allMessages.size !== 0 && isLoadMoreMsg) {
+      if (isLoadMoreMsg) {
+        setIsLoadMoreMsg(false);
+        const firstCluster: MessageCluster = allMessages.entries().next()
+          .value[1];
+        setScrollToKey(firstCluster.messages[0]._id);
+      }
+      if (allMessages.size !== 0) {
         const newMessages = new Map(allMessages);
         const arrayCluster = Array.from(messages.values());
-        const lastCluster = arrayCluster.pop();
-        if (lastCluster) {
-          const isExisting = newMessages.get(lastCluster._id);
-          if (isExisting) {
-            isExisting.messages = [
-              ...lastCluster.messages,
-              ...isExisting.messages,
-            ];
+
+        if (isLoadMoreMsg) {
+          const lastCluster = arrayCluster.pop();
+          if (lastCluster) {
+            const isExisting = newMessages.get(lastCluster._id);
+            if (isExisting) {
+              isExisting.messages = [
+                ...lastCluster.messages,
+                ...isExisting.messages,
+              ];
+            }
+          }
+        } else {
+          const firstCluster = arrayCluster.shift();
+
+          if (firstCluster) {
+            const isExisting = newMessages.get(firstCluster._id);
+            if (isExisting) {
+              isExisting.messages = [
+                ...isExisting.messages,
+                ...firstCluster.messages,
+              ];
+            }
           }
         }
+
+        setAllMessages(newMessages);
         arrayCluster.forEach((cluster) => {
           newMessages.set(cluster._id, cluster);
         });
-        setAllMessages(newMessages);
       } else setAllMessages(messages);
     } else {
       setScrollBottom(true);
@@ -211,7 +244,7 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
   }, [conversationId, allMessages]);
 
   useEffect(() => {
-    if (scrollBottom && !scrollToKey && chatListRef.current) {
+    if (scrollBottom && !isJump && !scrollToKey && chatListRef.current) {
       scrollElementToBottom(chatListRef);
     }
   }, [scrollBottom, allMessages]);
@@ -220,13 +253,13 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
     setQueryMessageUrl(`?receiverId=${conversationId}`);
   }, [conversationId]);
 
-  return isLoading && !isLoadMoreMsg ? (
+  return !firstLoadSuccess && !isLoadMoreMsg ? (
     <div className="size-full flex justify-center items-center">
       <Loader2 className="animate-spin" size={30} />
     </div>
   ) : (
     <div className="dropzone min-h-0 pt-10 relative">
-      {isLoadMoreMsg && (
+      {(isLoadMoreMsg || jumpTo) && (
         <div className="flex justify-center absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Loader2 className="animate-spin" size={20} />
         </div>
@@ -258,6 +291,7 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
                     }}
                     key={item._id}
                     message={item}
+                    onJump={onJump}
                   />
                 ) : (
                   <MessageItemStatus key={item.uniqueId} message={item} />
@@ -268,15 +302,11 @@ function MessageList({ store, type, conversationId }: MessageListProps) {
       </div>
       {/* <div ref={chatEndRef} /> */}
       {/* <div
-      onClick={() => {
-        setJumpTo("666afbaad35a11a17c2b0dd6");
-        setQueryUrl(
-          `?receiverId=${conversationId}&aroundId=666afbaad35a11a17c2b0dd6`
-        );
-      }}
-    >
-      CLICK
-    </div> */}
+        onClick={() => {
+        }}
+      >
+        CLICK
+      </div> */}
     </div>
   );
 }

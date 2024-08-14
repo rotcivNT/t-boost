@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { SendMessageProps, Sender } from "@/app/apis/api-payload";
+import useDebounce from "@/app/hooks/useDebounce";
 import { forwardMessage } from "@/app/services/action";
 import { useChannelStore } from "@/app/store/channel.store";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,7 @@ import { pusher } from "@/configs/pusher";
 import { MessageItemProps } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { Forward } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 interface IProps {
@@ -22,15 +24,24 @@ interface IProps {
 
 function ForwardButton({ message }: IProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const { channels } = useChannelStore((state) => ({
+  const { channels, currentChannel } = useChannelStore((state) => ({
     channels: state.channels,
+    currentChannel: state.currentChannel,
   }));
 
-  const [results, setResults] = useState(channels);
+  const debounceValue = useDebounce(searchTerm, 300);
+
+  const availableChannels = useMemo(() => {
+    return channels.filter((channel) => channel._id !== currentChannel?._id);
+  }, []);
+
+  const [results, setResults] = useState(availableChannels);
+
   const [sended, setSended] = useState<string[]>([]);
   const { user } = useUser();
   const onFowardMessage = async (channelId: string) => {
     try {
+      setSended((prev) => [...prev, channelId]);
       const uniqueId = uuidv4();
       const createMessageItemDto: SendMessageProps = {
         ...message,
@@ -43,13 +54,13 @@ function ForwardButton({ message }: IProps) {
           fullName: user?.fullName as string,
           imageUrl: user?.imageUrl as string,
         },
+        createdAt: new Date(),
       };
       if (message.sender?.clerkUserId !== (user?.id as string)) {
         createMessageItemDto.fowarder = user?.id as string;
       }
       try {
         const res = await forwardMessage(createMessageItemDto);
-        setSended((prev) => [...prev, channelId]);
       } catch (e) {
         console.log(e);
       }
@@ -57,6 +68,17 @@ function ForwardButton({ message }: IProps) {
       console.log(e);
     }
   };
+
+  useEffect(() => {
+    if (debounceValue) {
+      const results = availableChannels.filter((channel) =>
+        channel.name.toLowerCase().includes(debounceValue.toLowerCase())
+      );
+      setResults(results);
+    } else {
+      setResults(availableChannels);
+    }
+  }, [debounceValue]);
 
   return (
     <Dialog>

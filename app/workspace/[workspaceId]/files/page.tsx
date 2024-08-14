@@ -1,4 +1,5 @@
 import { BeakerIcon, SparklesIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function FilesPage() {
   return (
@@ -17,9 +18,12 @@ export default function FilesPage() {
           We&apos;re working hard to build this amazing experience for you.
           Please check back later to explore new features!
         </p>
-        <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <Link
+          href="/"
+          className="block text-center w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
           Return to Home
-        </button>
+        </Link>
       </div>
     </div>
   );

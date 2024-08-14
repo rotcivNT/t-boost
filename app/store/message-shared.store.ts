@@ -12,6 +12,8 @@ export interface MessageSharedState {
   setQueryMessageUrl: (url: string) => void;
   allMessages: Map<string, MessageCluster>;
   setAllMessages: (messages: Map<string, MessageCluster>) => void;
+  scrollBottom: boolean;
+  setScrollBottom: (scrollToBottom: boolean) => void;
 }
 
 export const useMessageSharedStore = create<MessageSharedState>((set) => ({
@@ -54,5 +56,11 @@ export const useMessageSharedStore = create<MessageSharedState>((set) => ({
     set((prevState) => ({
       ...prevState,
       allMessages: messages,
+    })),
+  scrollBottom: true,
+  setScrollBottom: (scrollToBottom: boolean) =>
+    set((prevState) => ({
+      ...prevState,
+      scrollToBottom,
     })),
 }));

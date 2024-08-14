@@ -4,8 +4,16 @@ import RecordVideo from "@/components/dialog-content/RecordVideo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Mic, Plus, SendHorizonal, Smile, Video } from "lucide-react";
-import { ChangeEvent, useRef, useState } from "react";
+import { Plus, SendHorizonal } from "lucide-react";
+import dynamic from "next/dynamic";
+import { ChangeEvent, useRef } from "react";
+
+const Picker = dynamic(
+  () => {
+    return import("emoji-picker-react");
+  },
+  { ssr: false }
+);
 
 interface IProps {
   sendMessage: () => void;
@@ -24,7 +32,7 @@ function Footerbar({ sendMessage }: IProps) {
     fileArray.forEach((file) => setFiles(file));
   };
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center relative">
       <div className="flex gap-2 items-center text-[#9D9E9F] flex-1">
         <Button
           variant="icon"
@@ -41,23 +49,9 @@ function Footerbar({ sendMessage }: IProps) {
           />
           <Plus size={20} className="text-inherit" strokeWidth={1.6} />
         </Button>
-        <Button
-          variant="icon"
-          size="icon"
-          className=" hover:bg-[rgba(255,255,255,0.1)] hover:text-text-primary"
-        >
-          <Smile size={20} className="text-inherit" strokeWidth={1.6} />
-        </Button>
 
         <Separator orientation="vertical" className="h-[26px] w-[2px]" />
         <RecordVideo />
-        <Button
-          variant="icon"
-          size="icon"
-          className=" hover:bg-[rgba(255,255,255,0.1)] hover:text-text-primary"
-        >
-          <Mic size={20} className="text-inherit" strokeWidth={1.6} />
-        </Button>
       </div>
       <div>
         <Button

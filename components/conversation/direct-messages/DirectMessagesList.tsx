@@ -37,6 +37,7 @@ function DirectMessagesList() {
                 ? item.membersInfo[1]
                 : item.membersInfo[0]
               : null;
+
           return (
             receiver && (
               <ConversationSidebarButton
@@ -49,7 +50,7 @@ function DirectMessagesList() {
                     src={receiver.imageUrl}
                     width={20}
                     height={20}
-                    className="rounded-[5px] relative left-[-2px]"
+                    className="rounded-[5px] size-5 relative left-[-2px]"
                   />
                 }
               />
