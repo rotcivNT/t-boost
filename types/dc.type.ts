@@ -22,5 +22,5 @@ export interface DirectConversation {
   bookmarkFolders: BookmarkFolder[];
   createdAt: string;
   updatedAt: string;
-  lastMessage: LastMessage;
+  lastMessage?: LastMessage;
 }
