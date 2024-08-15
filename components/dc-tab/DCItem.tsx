@@ -32,9 +32,9 @@ export default function DCItem({ dc }: IProps) {
       : dc.membersInfo[0];
   }, []);
   const content =
-    dc.lastMessage.type === MessageType.TEXT
+    dc?.lastMessage?.type === MessageType.TEXT
       ? dc.lastMessage.content
-      : contentMapMsgType[dc.lastMessage.type];
+      : contentMapMsgType[dc?.lastMessage?.type as MessageType];
   return (
     <Link
       href={`/workspace/${auth.orgId}/message/home/D${dc._id}`}
@@ -53,7 +53,8 @@ export default function DCItem({ dc }: IProps) {
         <p className="text-text-primary leading-none flex justify-between">
           <span className="font-medium text-sm">{receiver.fullName}</span>
           <span className="text-xs">
-            {DCDateFormat(dc.lastMessage.createdAt)}
+            {dc?.lastMessage?.createdAt &&
+              DCDateFormat(dc?.lastMessage?.createdAt)}
           </span>
         </p>
         <p
