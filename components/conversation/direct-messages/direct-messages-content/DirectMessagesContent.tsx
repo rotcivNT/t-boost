@@ -51,7 +51,7 @@ export default function DirectMessagesContent({ cid }: IProps) {
           <DMContentHeader />
           <Separator />
           <div className="flex-1 h-[calc(100%-126px)]">
-            {/* <DCMessageWrapper /> */}
+            <DCMessageWrapper />
           </div>
         </div>
       </ResizablePanel>
